@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Quask</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #f5faff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .profile-section {
+      display: flex;
+      align-items: center;
+    }
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #d9e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1.1rem;
+      margin-right: 0.8rem;
+      color: #333;
+    }
+    .profile-avatar span {
+      user-select: none;
+    }
+    .settings-link {
+      font-size: 1.3rem;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with profile pic -->
+  <header class="dashboard-header">
+    <div class="logo">Quask</div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <a href="settings.html" class="settings-link" title="Edit profile">⚙️</a>
+    </div>
+  </header>
+
+  <!-- Main dashboard content -->
+  <main class="auth-container">
+    <h1>Welcome to Quask!</h1>
+    <p>Have a question? Just Quask.</p>
+    <h2 id="greeting">Loading user info...</h2>
+    <p>This is your dashboard. From here, you’ll be able to access tools, track progress, and ask questions!</p>
+    <button id="logout-btn">Log Out</button>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdNYtqf5RgFf_tuT1vRrFg9v6IjPO3D6U",
+      authDomain: "quask-61e3c.firebaseapp.com",
+      projectId: "quask-61e3c",
+      storageBucket: "quask-61e3c.firebasestorage.app",
+      messagingSenderId: "305472380462",
+      appId: "1:305472380462:web:a1b620ead8dcccc05209bf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        if (!user.displayName || user.displayName.trim() === "") {
+          window.location.href = "profile-setup.html";
+          return;
+        }
+
+        // Set greeting
+        document.getElementById("greeting").textContent = `Hello, ${user.displayName}!`;
+
+        // Set profile avatar
+        const avatar = document.getElementById("profile-avatar");
+        const avatarInitial = document.getElementById("avatar-initial");
+
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatar.style.backgroundSize = "cover";
+          avatar.style.backgroundPosition = "center";
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email[0].toUpperCase();
+        }
+      }
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up – Quask</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <header>
+    <h1>Join Quask Today</h1>
+    <p>Have a question? Just Quask.</p>
+  </header>
+
+  <main class="auth-container">
+    <form id="signup-form">
+      <h2>Create Account</h2>
+
+      <label for="new-email">Email:</label>
+      <input type="email" id="new-email" required />
+
+      <label for="new-password">Password:</label>
+      <input type="password" id="new-password" required />
+
+      <label for="confirm-password">Confirm Password:</label>
+      <input type="password" id="confirm-password" required />
+
+      <button type="submit">Sign Up</button>
+
+      <p class="switch-link">
+        Already have an account? <a href="login.html">Log in</a>
+      </p>
+    </form>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <!-- ✅ FIXED: Use compat Firebase scripts instead of modular ones -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdNYtqf5RgFf_tuT1vRrFg9v6IjPO3D6U",
+      authDomain: "quask-61e3c.firebaseapp.com",
+      projectId: "quask-61e3c",
+      storageBucket: "quask-61e3c.appspot.com",
+      messagingSenderId: "305472380462",
+      appId: "1:305472380462:web:a1b620ead8dcccc05209bf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    document.getElementById("signup-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById("new-email").value.trim();
+      const password = document.getElementById("new-password").value;
+      const confirm = document.getElementById("confirm-password").value;
+
+      if (password !== confirm) {
+        alert("Passwords do not match.");
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert("Account created!");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>
