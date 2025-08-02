@@ -15,22 +15,24 @@ let selectedFile = null;
 const storage = firebase.storage();
 
 
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Redirect login button on homepage
   const loginBtn = document.getElementById("login-btn");
+  const signupBtn = document.getElementById("signup-btn");
+
   if (loginBtn) {
     loginBtn.addEventListener("click", () => {
       window.location.href = "login.html";
     });
   }
 
-  // Redirect signup button on homepage (if present)
-  const signupBtn = document.getElementById("signup-btn");
   if (signupBtn) {
     signupBtn.addEventListener("click", () => {
       window.location.href = "signup.html";
     });
   }
+});
+
 
   // Handle login form submission
   const loginForm = document.getElementById("login-form");
