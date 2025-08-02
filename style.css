@@ -192,3 +192,20 @@ button#save-btn {
 button#save-btn:hover {
   background-color: #3c88d3;
 }
+
+.profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #d9e7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 1.1rem;
+  margin-right: 0.8rem;
+  color: #333;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}

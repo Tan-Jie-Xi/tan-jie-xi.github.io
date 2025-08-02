@@ -11,6 +11,9 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+let selectedFile = null;
+const storage = firebase.storage();
+
 
 document.addEventListener("DOMContentLoaded", () => {
   // Redirect login button on homepage
@@ -75,39 +78,97 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const saveBtn = document.getElementById("save-profile");
+  // 🔧 Listen for file selection
+  const fileInput = document.getElementById("profile-pic");
+  if (fileInput) {
+    fileInput.addEventListener("change", (event) => {
+      selectedFile = event.target.files[0];
+      console.log("Selected file:", selectedFile);
+    });
+  }
 
-  if (saveBtn) {
-    saveBtn.addEventListener("click", async () => {
-      const username = document.getElementById("username").value.trim();
-
-      if (!username) {
-        alert("Please enter a username.");
-        return;
-      }
-
-      const user = firebase.auth().currentUser;
+  // 🔧 Save Profile Picture
+  const savePicBtn = document.getElementById("save-btn");
+  if (savePicBtn) {
+    savePicBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
 
       if (!user) {
-        alert("No user is signed in.");
+        alert("You must be logged in to upload a profile picture.");
         return;
       }
 
-      try {
-        // Update Firebase Auth displayName
-        await user.updateProfile({
-          displayName: username,
-          photoURL: null // optional: set to a real image URL later
-        });
-
-        // Redirect to dashboard after success
-        alert("Profile saved!");
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        alert("Failed to save profile.");
+      if (!selectedFile) {
+        alert("Please select a profile picture first.");
+        return;
       }
+
+      const storageRef = storage.ref(`profile-pictures/${user.uid}.jpg`);
+      const uploadTask = storageRef.put(selectedFile);
+
+      uploadTask.on(
+        "state_changed",
+        null,
+        (error) => {
+          console.error("Upload error:", error);
+          alert("Failed to upload profile picture.");
+        },
+        () => {
+          uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+            user.updateProfile({ photoURL: downloadURL })
+              .then(() => {
+                alert("Profile picture updated successfully!");
+                window.location.href = "dashboard.html";
+              })
+              .catch((error) => {
+                console.error("Profile update error:", error);
+                alert("Failed to update user profile.");
+              });
+          });
+        }
+      );
     });
   }
 });
 
+
+document.getElementById("save-btn").addEventListener("click", () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("You must be logged in to upload a profile picture.");
+    return;
+  }
+
+  if (!selectedFile) {
+    alert("Please select a profile picture first.");
+    return;
+  }
+
+  const storageRef = storage.ref(`profile-pictures/${user.uid}.jpg`);
+  const uploadTask = storageRef.put(selectedFile);
+
+  uploadTask.on(
+    "state_changed",
+    snapshot => {
+      // Optional: Add progress indicator here
+    },
+    error => {
+      console.error("Upload error:", error);
+      alert("Failed to upload profile picture.");
+    },
+    () => {
+      uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
+        user.updateProfile({ photoURL: downloadURL })
+          .then(() => {
+            alert("Profile picture updated successfully!");
+            window.location.href = "dashboard.html";
+          })
+          .catch(error => {
+            console.error("Profile update error:", error);
+            alert("Failed to update user profile.");
+          });
+      });
+    }
+  );
+});

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings – Quask</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f5faff;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .settings-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .avatar-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #d9e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 2rem;
+      margin: 1rem auto;
+      color: #333;
+    }
+
+    .avatar-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    input[type="file"] {
+      display: block;
+      margin: 1rem auto;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      background: #3a82f7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      display: block;
+      margin: 1.5rem auto 0;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="settings-container">
+    <h1>Edit Profile</h1>
+
+    <div class="avatar-preview" id="avatar-preview">
+      <span id="avatar-initial">?</span>
+    </div>
+
+    <input type="file" accept="image/*" id="profile-pic-input" />
+
+    
+
+    <button id="save-btn">Save Profile Picture</button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+ <script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAdNYtqf5RgFf_tuT1vRrFg9v6IjPO3D6U",
+    authDomain: "quask-61e3c.firebaseapp.com",
+    projectId: "quask-61e3c",
+    storageBucket: "quask-61e3c.appspot.com",
+    messagingSenderId: "305472380462",
+    appId: "1:305472380462:web:a1b620ead8dcccc05209bf"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const storage = firebase.storage();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const avatarPreview = document.getElementById("avatar-preview");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const fileInput = document.getElementById("profile-pic-input");
+    const saveBtn = document.getElementById("save-btn");
+
+    let selectedFile = null;
+
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        if (user.photoURL) {
+          const img = document.createElement("img");
+          img.src = user.photoURL;
+          avatarPreview.innerHTML = "";
+          avatarPreview.appendChild(img);
+        } else {
+          avatarInitial.textContent = user.email[0].toUpperCase();
+        }
+      }
+    });
+
+    fileInput.addEventListener("change", e => {
+      selectedFile = e.target.files[0];
+      if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const img = document.createElement("img");
+          img.src = event.target.result;
+          avatarPreview.innerHTML = "";
+          avatarPreview.appendChild(img);
+        };
+        reader.readAsDataURL(selectedFile);
+      }
+    });
+
+    saveBtn.addEventListener("click", () => {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in.");
+        return;
+      }
+
+      if (!selectedFile) {
+        alert("Please select a file to upload.");
+        return;
+      }
+
+      const storageRef = storage.ref(`profile-pictures/${user.uid}.jpg`);
+      storageRef.put(selectedFile)
+        .then(snapshot => snapshot.ref.getDownloadURL())
+        .then(downloadURL => user.updateProfile({ photoURL: downloadURL }))
+        .then(() => {
+          alert("Profile picture updated!");
+          window.location.href = "dashboard.html";
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert("Error updating profile picture.");
+        });
+    });
+  });
+</script>
+
+</body>
+</html>
