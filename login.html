@@ -34,7 +34,7 @@
     <p>© 2025 Quask. All rights reserved.</p>
   </footer>
 
-  <!-- ✅ Firebase v9-compatible CDN (not modular syntax) -->
+
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
 
@@ -47,12 +47,9 @@
       messagingSenderId: "305472380462",
       appId: "1:305472380462:web:a1b620ead8dcccc05209bf"
     };
-
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    // Handle login
     document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
 
