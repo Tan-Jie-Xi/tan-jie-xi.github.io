@@ -1,4 +1,4 @@
-// Firebase config (Make sure this matches your Firebase project)
+
 const firebaseConfig = {
   apiKey: "AIzaSyAdNYtqf5RgFf_tuT1vRrFg9v6IjPO3D6U",
   authDomain: "quask-61e3c.firebaseapp.com",
@@ -8,7 +8,6 @@ const firebaseConfig = {
   appId: "1:305472380462:web:a1b620ead8dcccc05209bf"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 let selectedFile = null;
@@ -32,9 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-
-  // Handle login form submission
   const loginForm = document.getElementById("login-form");
   if (loginForm) {
     loginForm.addEventListener("submit", function (e) {
@@ -51,8 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
   }
-
-  // Handle signup form submission
   const signupForm = document.getElementById("signup-form");
   if (signupForm) {
     signupForm.addEventListener("submit", function (e) {
@@ -80,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 🔧 Listen for file selection
   const fileInput = document.getElementById("profile-pic");
   if (fileInput) {
     fileInput.addEventListener("change", (event) => {
@@ -89,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 🔧 Save Profile Picture
   const savePicBtn = document.getElementById("save-btn");
   if (savePicBtn) {
     savePicBtn.addEventListener("click", () => {
@@ -153,7 +145,7 @@ document.getElementById("save-btn").addEventListener("click", () => {
   uploadTask.on(
     "state_changed",
     snapshot => {
-      // Optional: Add progress indicator here
+
     },
     error => {
       console.error("Upload error:", error);
