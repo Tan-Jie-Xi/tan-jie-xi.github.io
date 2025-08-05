@@ -49,7 +49,7 @@
 </head>
 <body>
 
-  <!-- Dashboard Header -->
+
   <header class="dashboard-header">
     <div class="logo">Quask</div>
     <div class="profile-section">
@@ -60,7 +60,7 @@
     </div>
   </header>
 
-  <!-- Main Content -->
+
   <main class="auth-container">
     <h1>Welcome to Quask!</h1>
     <p>Have a question? Just Quask.</p>
@@ -69,17 +69,15 @@
     <button id="logout-btn">Log Out</button>
   </main>
 
-  <!-- Footer -->
   <footer>
     <p>© 2025 Quask. All rights reserved.</p>
   </footer>
-
-  <!-- Firebase SDKs -->
+  
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
-  <!-- Dashboard Logic -->
+  
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAdNYtqf5RgFf_tuT1vRrFg9v6IjPO3D6U",
@@ -97,31 +95,30 @@
       if (!user) {
         window.location.href = "login.html";
       } else {
-        // Redirect to profile setup if displayName (username) is missing
+        
         if (!user.displayName || user.displayName.trim() === "") {
           window.location.href = "profile-setup.html";
           return;
         }
 
-        // Set personalized greeting
+        
         document.getElementById("greeting").textContent = `Hello, ${user.displayName}!`;
 
-        // Avatar logic
+      
         const avatar = document.getElementById("profile-avatar");
         const avatarInitial = document.getElementById("avatar-initial");
 
         if (user.photoURL) {
-          // Use profile picture if available
           avatar.style.backgroundImage = `url(${user.photoURL})`;
           avatarInitial.style.display = "none";
         } else {
-          // Use first letter of email
+          
           avatarInitial.textContent = user.email.charAt(0).toUpperCase();
         }
       }
     });
 
-    // Logout logic
+
     document.getElementById("logout-btn").addEventListener("click", () => {
       auth.signOut().then(() => {
         window.location.href = "login.html";
