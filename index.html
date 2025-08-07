@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Quask</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Quask</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Welcome to Quask!</h1>
-    <p>Have a question? Just Quask.</p>
-  </header>
+    <header>
+        <h1>Welcome to Quask!</h1>
+        <p>Have a question? Just Quask.</p>
+    </header>
 
-  <main>
-    <section id="features">
-      <h2>What Quask Can Do</h2>
-      <ul>
-        <li>✅ Track class progress</li>
-        <li>🔍 Fact-check lesson content</li>
-        <li>🧠 Generate practice questions</li>
-      </ul>
-    </section>
+    <main>
+        <section id="features">
+            <h2>What Quask Can Do</h2>
+            <ul>
+                <li>✅ Track class progress</li>
+                <li>🔍 Fact-check lesson content</li>
+                <li>🧠 Generate practice questions</li>
+            </ul>
+        </section>
+        
+        <div class="auth-buttons">
+            <a href="login.html"><button>Login</button></a>
+            <a href="signup.html"><button>Sign Up</button></a>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Quask. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+        // If your script.js file uses Firebase, it should also be a module.
+        // For example:
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        // const firebaseConfig = { ... };
+        // const app = initializeApp(firebaseConfig);
+    </script>
     
-<a href="login.html"><button>Login</button></a>
-<a href="signup.html"><button>Sign Up</button></a>
-
-  </main>
-
-  <footer>
-    <p>© 2025 Quask. All rights reserved.</p>
-  </footer>
-
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js"></script>
-
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 
 </body>
 </html>
