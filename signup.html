@@ -1,80 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign Up – Quask</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up – Quask</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-<body>
-  <header>
-    <h1>Join Quask Today</h1>
-    <p>Have a question? Just Quask.</p>
-  </header>
+  <body>
+    <header>
+      <h1>Join Quask Today</h1>
+      <p>Have a question? Just Quask.</p>
+    </header>
 
-  <main class="auth-container">
-    <form id="signup-form">
-      <h2>Create Account</h2>
+    <main class="auth-container">
+      <form id="signup-form">
+        <h2>Create Account</h2>
 
-      <label for="new-email">Email:</label>
-      <input type="email" id="new-email" required />
+        <label for="new-email">Email:</label>
+        <input type="email" id="new-email" required />
 
-      <label for="new-password">Password:</label>
-      <input type="password" id="new-password" required />
+        <label for="new-password">Password:</label>
+        <input type="password" id="new-password" required />
 
-      <label for="confirm-password">Confirm Password:</label>
-      <input type="password" id="confirm-password" required />
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" required />
 
-      <button type="submit">Sign Up</button>
+        <button type="submit">Sign Up</button>
 
-      <p class="switch-link">
-        Already have an account? <a href="login.html">Log in</a>
-      </p>
-    </form>
-  </main>
+        <p class="switch-link">
+          Already have an account? <a href="login.html">Log in</a>
+        </p>
+      </form>
+    </main>
 
-  <footer>
-    <p>© 2025 Quask. All rights reserved.</p>
-  </footer>
+    <footer>
+      <p>© 2025 Quask. All rights reserved.</p>
+    </footer>
 
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-  <script>
-    const firebaseConfig = {
-    apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
-    authDomain: "quask-a9e1b.firebaseapp.com",
-    projectId: "quask-a9e1b",
-    storageBucket: "quask-a9e1b.firebasestorage.app",
-    messagingSenderId: "726397658400",
-    appId: "1:726397658400:web:cac926ec2cbffea890a345",
-    measurementId: "G-RT218LJWLP"
-  };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+      const firebaseConfig = {
+        apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+        authDomain: "quask-a9e1b.firebaseapp.com",
+        projectId: "quask-a9e1b",
+        storageBucket: "quask-a9e1b.firebasestorage.app",
+        messagingSenderId: "726397658400",
+        appId: "1:726397658400:web:cac926ec2cbffea890a345",
+        measurementId: "G-RT218LJWLP",
+      };
 
-    document.getElementById("signup-form").addEventListener("submit", function (e) {
-      e.preventDefault();
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app); // Get the auth service instance
 
-      const email = document.getElementById("new-email").value.trim();
-      const password = document.getElementById("new-password").value;
-      const confirm = document.getElementById("confirm-password").value;
+      document.getElementById("signup-form").addEventListener("submit", function (e) {
+        e.preventDefault();
 
-      if (password !== confirm) {
-        alert("Passwords do not match.");
-        return;
-      }
+        const email = document.getElementById("new-email").value.trim();
+        const password = document.getElementById("new-password").value;
+        const confirm = document.getElementById("confirm-password").value;
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("Account created!");
-          window.location.href = "login.html";
-        })
-        .catch((error) => {
-          alert("Error: " + error.message);
-        });
-    });
-  </script>
-</body>
+        if (password !== confirm) {
+          alert("Passwords do not match.");
+          return;
+        }
+
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            alert("Account created!");
+            window.location.href = "login.html";
+          })
+          .catch((error) => {
+            alert("Error: " + error.message);
+          });
+      });
+    </script>
+  </body>
 </html>
