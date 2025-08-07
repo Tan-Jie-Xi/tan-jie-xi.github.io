@@ -1,71 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login – Quask</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login – Quask</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>Welcome Back to Quask</h1>
-    <p>Have a question? Just Quask.</p>
-  </header>
+  <header>
+    <h1>Welcome Back to Quask</h1>
+    <p>Have a question? Just Quask.</p>
+  </header>
 
-  <main class="auth-container">
-    <form id="login-form">
-      <h2>Login</h2>
+  <main class="auth-container">
+    <form id="login-form">
+      <h2>Login</h2>
 
-      <label for="email">Email:</label>
-      <input type="email" id="email" required />
+      <label for="email">Email:</label>
+      <input type="email" id="email" required />
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" required />
+      <label for="password">Password:</label>
+      <input type="password" id="password" required />
 
-      <button type="submit">Log In</button>
+      <button type="submit">Log In</button>
 
-      <p class="switch-link">
-        Don’t have an account? <a href="signup.html">Sign up</a>
-      </p>
-    </form>
-  </main>
+      <p class="switch-link">
+        Don’t have an account? <a href="signup.html">Sign up</a>
+      </p>
+    </form>
+  </main>
 
-  <footer>
-    <p>© 2025 Quask. All rights reserved.</p>
-  </footer>
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
 
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <script type="module">
+    // Import the required functions from the modular SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-auth.js";
 
-  <script>
-    const firebaseConfig = {
-    apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
-    authDomain: "quask-a9e1b.firebaseapp.com",
-    projectId: "quask-a9e1b",
-    storageBucket: "quask-a9e1b.firebasestorage.app",
-    messagingSenderId: "726397658400",
-    appId: "1:726397658400:web:cac926ec2cbffea890a345",
-    measurementId: "G-RT218LJWLP"
-  };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const firebaseConfig = {
+    apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+    authDomain: "quask-a9e1b.firebaseapp.com",
+    projectId: "quask-a9e1b",
+    storageBucket: "quask-a9e1b.firebasestorage.app",
+    messagingSenderId: "726397658400",
+    appId: "1:726397658400:web:cac926ec2cbffea890a345",
+    measurementId: "G-RT218LJWLP"
+    };
 
-    document.getElementById("login-form").addEventListener("submit", function (e) {
-      e.preventDefault();
+    // Initialize the app and get the auth service
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("Login successful!");
-          window.location.href = "dashboard.html";
-        })
-        .catch((error) => {
-          alert("Login failed: " + error.message);
-        });
-    });
-  </script>
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      // Use the modular function, passing 'auth' as the first argument
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Login successful!");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert("Login failed: " + error.message);
+        });
+    });
+  </script>
 </body>
 </html>
