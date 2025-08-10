@@ -1,11 +1,12 @@
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
     onAuthStateChanged, 
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
-    updateProfile 
+    updateProfile,
+    GoogleAuthProvider,
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { 
     getStorage, 
@@ -29,6 +30,12 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 let selectedFile = null;
+
+onAuthStateChanged(auth, user => {
+    if (user) {
+        window.location.href = "dashboard.html";
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginBtn = document.getElementById("login-btn");
@@ -117,6 +124,24 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (error) {
                 console.error("Error during profile update:", error);
                 alert("Failed to update user profile: " + error.message);
+            }
+        });
+    }
+
+    // ✅ Google Sign-In
+    const googleLoginBtn = document.getElementById("googleLoginBtn");
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener("click", async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log("Signed in as:", user.displayName, user.email);
+                alert(`Welcome ${user.displayName}!`);
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                console.error("Error signing in with Google:", error);
+                alert("Error signing in with Google: " + error.message);
             }
         });
     }
