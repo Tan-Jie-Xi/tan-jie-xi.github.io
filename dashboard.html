@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Quask</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #f5faff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .profile-section {
+      display: flex;
+      align-items: center;
+    }
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #d9e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1.1rem;
+      margin-right: 0.8rem;
+      color: #333;
+      background-size: cover;
+      background-position: center;
+    }
+    .profile-avatar span {
+      user-select: none;
+    }
+    .settings-link {
+      font-size: 1.3rem;
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+
+
+  <header class="dashboard-header">
+    <div class="logo">Quask</div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <a href="settings.html" class="settings-link" title="Edit profile">⚙️</a>
+    </div>
+  </header>
+
+
+  <main class="auth-container">
+    <h1>Welcome to Quask!</h1>
+    <p>Have a question? Just Quask.</p>
+    <h2 id="greeting">Loading user info...</h2>
+    <p>This is your dashboard. From here, you’ll be able to access tools, track progress, and ask questions!</p>
+    <button id="logout-btn">Log Out</button>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+  
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+    authDomain: "quask-a9e1b.firebaseapp.com",
+    projectId: "quask-a9e1b",
+    storageBucket: "quask-a9e1b.firebasestorage.app",
+    messagingSenderId: "726397658400",
+    appId: "1:726397658400:web:cac926ec2cbffea890a345",
+    measurementId: "G-RT218LJWLP"
+  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        
+        if (!user.displayName || user.displayName.trim() === "") {
+          window.location.href = "profile-setup.html";
+          return;
+        }
+
+        
+        document.getElementById("greeting").textContent = `Hello, ${user.displayName}!`;
+
+      
+        const avatar = document.getElementById("profile-avatar");
+        const avatarInitial = document.getElementById("avatar-initial");
+
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+      }
+    });
+
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    });
+  </script>
+
+ <style>
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: #f5faff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  }
+
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  .profile-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #d9e7ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 1.1rem;
+    margin-right: 0.8rem;
+    color: #333;
+  }
+
+  .profile-avatar span {
+    user-select: none;
+  }
+
+  .settings-link {
+    font-size: 1.3rem;
+    text-decoration: none;
+  }
+
+  main.auth-container {
+    display: block;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+
+  main.auth-container h1,
+  main.auth-container h2,
+  main.auth-container p {
+    display: block;
+    margin: 1rem 0;
+    line-height: 1.6;
+  }
+
+  #logout-btn {
+    margin-top: 2rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #3a82f7;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  #logout-btn:hover {
+    background-color: #2563eb;
+  }
+</style>
+</body>
+</html>

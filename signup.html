@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up – Quask</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>Join Quask Today</h1>
+      <p>Have a question? Just Quask.</p>
+    </header>
+
+    <main class="auth-container">
+      <form id="signup-form">
+        <h2>Create Account</h2>
+
+        <label for="new-email">Email:</label>
+        <input type="email" id="new-email" required />
+
+        <label for="new-password">Password:</label>
+        <input type="password" id="new-password" required />
+
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" required />
+
+        <button type="submit">Sign Up</button>
+
+        <p class="switch-link">
+          Already have an account? <a href="login.html">Log in</a>
+        </p>
+      </form>
+    </main>
+
+    <footer>
+      <p>© 2025 Quask. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+        authDomain: "quask-a9e1b.firebaseapp.com",
+        projectId: "quask-a9e1b",
+        storageBucket: "quask-a9e1b.firebasestorage.app",
+        messagingSenderId: "726397658400",
+        appId: "1:726397658400:web:cac926ec2cbffea890a345",
+        measurementId: "G-RT218LJWLP",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+
+      document.getElementById("signup-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("new-email").value.trim();
+        const password = document.getElementById("new-password").value;
+        const confirm = document.getElementById("confirm-password").value;
+
+        if (password !== confirm) {
+          alert("Passwords do not match.");
+          return;
+        }
+
+        // Add client-side password strength validation
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters long.");
+          return;
+        }
+
+        try {
+          // Use async/await for cleaner asynchronous code
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          alert("Account created! Redirecting to profile setup...");
+          window.location.href = "profile-setup.html";
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      });
+    </script>
+  </body>
+</html>
