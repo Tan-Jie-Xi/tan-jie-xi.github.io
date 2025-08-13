@@ -52,7 +52,9 @@
         getAuth, 
         createUserWithEmailAndPassword,
         GoogleAuthProvider,
-        signInWithPopup
+        signInWithPopup,
+        setPersistence,
+        browserSessionPersistence
       } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
       const firebaseConfig = {
@@ -68,6 +70,9 @@
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
       const provider = new GoogleAuthProvider();
+
+      // Set persistence before any auth operations
+      await setPersistence(auth, browserSessionPersistence);
 
       // Email/password signup
       document.getElementById("signup-form").addEventListener("submit", async function (e) {
@@ -96,28 +101,31 @@
         }
       });
 
-      // Google signup
+      // Google signup - Fixed version
       document.getElementById("google-signup").addEventListener("click", async function() {
         try {
           const result = await signInWithPopup(auth, provider);
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = GoogleAuthProvider.credentialFromResult(result);
-          const token = credential.accessToken;
-          // The signed-in user info
           const user = result.user;
           
-          alert("Signed up with Google successfully! Redirecting...");
-          window.location.href = "profile-setup.html";
-        } catch (error) {
-          // Handle Errors here.
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          // The email of the user's account used.
-          const email = error.customData.email;
-          // The AuthCredential type that was used.
-          const credential = GoogleAuthProvider.credentialFromError(error);
+          // Add a small delay to ensure auth state is persisted
+          setTimeout(() => {
+            console.log("Google sign-up successful, user ID:", user.uid);
+            alert("Welcome! Redirecting to your profile...");
+            window.location.href = "profile-setup.html";
+          }, 300);
           
-          alert("Error signing up with Google: " + errorMessage);
+        } catch (error) {
+          console.error("Google sign-up error:", error);
+          
+          // Improved error handling
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            alert('An account already exists with this email. Please log in instead.');
+            window.location.href = "login.html";
+          } else if (error.code === 'auth/popup-closed-by-user') {
+            console.log("User closed the sign-in popup");
+          } else {
+            alert("Error signing up with Google: " + error.message);
+          }
         }
       });
     </script>
