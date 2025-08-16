@@ -1,87 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign Up – Quask</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up – Quask</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
 
-  <body>
-    <header>
-      <h1>Join Quask Today</h1>
-      <p>Have a question? Just Quask.</p>
-    </header>
+  <body>
+    <header>
+      <h1>Join Quask Today</h1>
+      <p>Have a question? Just Quask.</p>
+    </header>
 
-    <main class="auth-container">
-      <form id="signup-form">
-        <h2>Create Account</h2>
+    <main class="auth-container">
+      <form id="signup-form">
+        <h2>Create Account</h2>
 
-        <label for="new-email">Email:</label>
-        <input type="email" id="new-email" required />
+        <label for="new-email">Email:</label>
+        <input type="email" id="new-email" required />
 
-        <label for="new-password">Password:</label>
-        <input type="password" id="new-password" required />
+        <label for="new-password">Password:</label>
+        <input type="password" id="new-password" required />
 
-        <label for="confirm-password">Confirm Password:</label>
-        <input type="password" id="confirm-password" required />
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" required />
 
-        <button type="submit">Sign Up</button>
+        <button type="submit">Sign Up</button>
 
-        <p class="switch-link">
-          Already have an account? <a href="login.html">Log in</a>
-        </p>
-      </form>
-    </main>
+        <div class="divider">or</div>
 
-    <footer>
-      <p>© 2025 Quask. All rights reserved.</p>
-    </footer>
+        <!-- Google Sign Up Button -->
+        <button type="button" id="google-signup" class="google-btn">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo" />
+          Sign Up with Google
+        </button>
 
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-      import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        <p class="switch-link">
+          Already have an account? <a href="login.html">Log in</a>
+        </p>
+      </form>
+    </main>
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
-        authDomain: "quask-a9e1b.firebaseapp.com",
-        projectId: "quask-a9e1b",
-        storageBucket: "quask-a9e1b.firebasestorage.app",
-        messagingSenderId: "726397658400",
-        appId: "1:726397658400:web:cac926ec2cbffea890a345",
-        measurementId: "G-RT218LJWLP",
-      };
+    <footer>
+      <p>© 2025 Quask. All rights reserved.</p>
+    </footer>
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+      import { 
+        getAuth, 
+        createUserWithEmailAndPassword,
+        GoogleAuthProvider,
+        signInWithPopup,
+        setPersistence,
+        browserSessionPersistence
+      } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-      document.getElementById("signup-form").addEventListener("submit", async function (e) {
-        e.preventDefault();
+      const firebaseConfig = {
+        apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+        authDomain: "quask-a9e1b.firebaseapp.com",
+        projectId: "quask-a9e1b",
+        storageBucket: "quask-a9e1b.firebasestorage.app",
+        messagingSenderId: "726397658400",
+        appId: "1:726397658400:web:cac926ec2cbffea890a345",
+        measurementId: "G-RT218LJWLP",
+      };
 
-        const email = document.getElementById("new-email").value.trim();
-        const password = document.getElementById("new-password").value;
-        const confirm = document.getElementById("confirm-password").value;
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const provider = new GoogleAuthProvider();
 
-        if (password !== confirm) {
-          alert("Passwords do not match.");
-          return;
-        }
+      // Set persistence before any auth operations
+      await setPersistence(auth, browserSessionPersistence);
 
-        // Add client-side password strength validation
-        if (password.length < 6) {
-          alert("Password must be at least 6 characters long.");
-          return;
-        }
+      // Email/password signup
+      document.getElementById("signup-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-        try {
-          // Use async/await for cleaner asynchronous code
-          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-          alert("Account created! Redirecting to profile setup...");
-          window.location.href = "profile-setup.html";
-        } catch (error) {
-          alert("Error: " + error.message);
-        }
-      });
-    </script>
-  </body>
+        const email = document.getElementById("new-email").value.trim();
+        const password = document.getElementById("new-password").value;
+        const confirm = document.getElementById("confirm-password").value;
+
+        if (password !== confirm) {
+          alert("Passwords do not match.");
+          return;
+        }
+
+        if (password.length < 6) {
+          alert("Password must be at least 6 characters long.");
+          return;
+        }
+
+        try {
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+          alert("Account created! Redirecting to profile setup...");
+          window.location.href = "profile-setup.html";
+        } catch (error) {
+          alert("Error: " + error.message);
+        }
+      });
+
+      // Google signup - Fixed version
+      document.getElementById("google-signup").addEventListener("click", async function() {
+        try {
+          const result = await signInWithPopup(auth, provider);
+          const user = result.user;
+          
+          // Add a small delay to ensure auth state is persisted
+          setTimeout(() => {
+            console.log("Google sign-up successful, user ID:", user.uid);
+            alert("Welcome! Redirecting to your profile...");
+            window.location.href = "profile-setup.html";
+          }, 300);
+          
+        } catch (error) {
+          console.error("Google sign-up error:", error);
+          
+          // Improved error handling
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            alert('An account already exists with this email. Please log in instead.');
+            window.location.href = "login.html";
+          } else if (error.code === 'auth/popup-closed-by-user') {
+            console.log("User closed the sign-in popup");
+          } else {
+            alert("Error signing up with Google: " + error.message);
+          }
+        }
+      });
+    </script>
+    
+    <style>
+      /* Add some basic styling for the Google button */
+      .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #757575;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        margin-top: 10px;
+      }
+      
+      .google-btn img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+      }
+      
+      .google-btn:hover {
+        background: #f7f7f7;
+      }
+      
+      .divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        color: #757575;
+        font-size: 14px;
+      }
+      
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .divider::before {
+        margin-right: 10px;
+      }
+      
+      .divider::after {
+        margin-left: 10px;
+      }
+    </style>
+  </body>
 </html>
