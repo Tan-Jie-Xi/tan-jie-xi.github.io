@@ -9,7 +9,7 @@ html, body {
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
+  background-color: #ffe680;
   color: #333;
 }
 
@@ -17,7 +17,7 @@ body {
 header, footer {
   text-align: center;
   padding: 2rem;
-  background-color: #e0f0ff;
+  background-color: #ffde59;
 }
 
 /* UPDATED: Let main fill remaining vertical space */
@@ -26,25 +26,32 @@ main {
   flex: 1; /* This is the key line */
 }
 
-/* Keep button styling the same */
-#login-btn {
-  padding: 1rem 2rem;
-  font-size: 1rem;
-  background-color: #4e9af1;
-  color: white;
+.btn {
+  padding: 0.8rem 2rem;
   border: none;
-  border-radius: 8px;
+  background: #ffd84d;
+  color: white;         
   cursor: pointer;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: background 0.3s, color 0.3s;
 }
 
-/* === Login / Auth Page Styles === */
+
 .auth-container {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  max-width: 400px;
+  margin: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
+
 
 form#login-form {
   background-color: #ffffff;
@@ -98,6 +105,7 @@ form#signup-form {
   background-color: #ffffff;
   padding: 2rem 3rem;
   border-radius: 12px;
+  color: black;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
@@ -209,3 +217,23 @@ button#save-btn:hover {
   background-size: cover;
   background-position: center;
 }
+
+#home-header {
+  padding: 100px 0;
+  font-weight: normal;
+}
+
+#home-footer {
+  padding: 100px 0;
+}
+
+.logo-text {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 20rem;
+  font-weight: 700; /* ensures bold variant shows up consistently */
+  color: #ffd84d;
+  margin-bottom: 2rem;
+ text-shadow: 1px 1px 0 #e6c200, -1px -1px 0 #e6c200; 
+}
+
+
