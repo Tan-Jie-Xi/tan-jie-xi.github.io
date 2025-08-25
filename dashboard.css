@@ -155,3 +155,19 @@ body {
     font-size: 1rem;
   }
 }
+
+.logo-container {
+  display: flex;              /* places items next to each other */
+  justify-content: center;    /* centers them horizontally */
+  align-items: center;        /* aligns them vertically */
+  gap: 20px;                  /* space between the two images */
+  margin-bottom: 10px;        /* space between logos and text */
+}
+
+.logo-img {
+  width: 120px;   /* adjust size as needed */
+  height: auto;   /* keep correct proportions */
+}
+
+
+
