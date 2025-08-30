@@ -121,31 +121,71 @@
       background-color: #f1f5f9;
     }
 
-    /* Top Navigation Bar */
-    .top-nav {
-      background-color: #ffffff;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: none;
-      border-bottom: 1px solid #e2e8f0;
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
 
-    .top-nav.show {
-      display: block;
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
     }
 
     .nav-section {
-      margin-bottom: 20px;
-    }
-
-    .nav-section:last-child {
-      margin-bottom: 0;
+      margin: 20px 0;
+      padding: 0 20px;
     }
 
     .nav-section h2 {
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 12px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 15px;
       font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -153,25 +193,39 @@
 
     .nav-links {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .nav-links a {
-      padding: 8px 16px;
+      padding: 12px 16px;
       text-decoration: none;
       font-size: 0.875rem;
-      color: #475569;
-      background-color: #f8fafc;
-      border-radius: 6px;
-      border: 1px solid #e2e8f0;
+      color: #1f2937;
+      border-radius: 8px;
       transition: all 0.2s ease;
+      font-weight: 500;
     }
 
     .nav-links a:hover {
-      background-color: #e0e7ff;
-      border-color: #c7d2fe;
-      color: #3730a3;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #111827;
+    }
+
+    /* Overlay for sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
     }
 
     /* Main Content Area */
@@ -283,8 +337,18 @@
   </style>
 </head>
 <body>
-  <!-- Top Navigation Bar -->
-  <div id="top-nav" class="top-nav">
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="Logo">
+        <span>Quask</span>
+        <img src="assets/quask.png" alt="Quask">
+      </div>
+      <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+    
     <div class="nav-section">
       <h2>Dashboard</h2>
       <div class="nav-links">
@@ -303,12 +367,16 @@
         <a href="#" id="nav-logout">Log Out</a>
       </div>
     </div>
-  </div>
+  </div></div>
 
   <header class="dashboard-header">
     <div class="header-left">
-      <span class="hamburger" onclick="toggleNav()">&#9776;</span>
-      <div class="logo">Quask</div>
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div class="logo">
+        <img src="assets/logo.png" alt="Logo" style="width: 24px; height: 24px; margin-right: 8px;">
+        Quask
+        <img src="assets/quask.png" alt="Quask" style="width: 24px; height: 24px; margin-left: 8px;">
+      </div>
     </div>
     <div class="profile-section">
       <div class="profile-avatar" id="profile-avatar">
@@ -363,10 +431,19 @@
     const avatarInitial = document.getElementById("avatar-initial");
     const dropdown = document.getElementById("dropdownMenu");
 
-    // Top navigation functions
-    window.toggleNav = function() {
-      const topNav = document.getElementById("top-nav");
-      topNav.classList.toggle("show");
+    // Sidebar navigation functions
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
     }
 
     // Toggle dropdown on avatar click
