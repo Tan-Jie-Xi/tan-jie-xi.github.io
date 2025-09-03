@@ -6,6 +6,29 @@
     <title>Set Up Profile – Quask</title>
     <link rel="stylesheet" href="style.css" />
     <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        header {
+            margin-bottom: 2rem;
+        }
+        header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
         .profile-form {
             background-color: #ffffff;
             padding: 2rem 3rem;
@@ -26,6 +49,8 @@
             font-size: 2rem;
             margin-bottom: 0.5rem;
             overflow: hidden;
+            color: #4e9af1; /* Initial text color */
+            font-weight: bold;
         }
         .hidden {
             display: none;
@@ -36,13 +61,77 @@
             margin-top: 0.5rem;
             font-size: 0.9rem;
             color: #4e9af1;
+            transition: color 0.3s ease;
+        }
+        .upload-label:hover {
+            color: #357ABD;
+        }
+        label[for="username"] {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        input[type="text"] {
+            width: calc(100% - 2rem);
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4e9af1;
+            box-shadow: 0 0 0 2px rgba(78, 154, 241, 0.2);
         }
         #save-btn {
             margin-top: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #4e9af1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #save-btn:hover {
+            background-color: #357ABD;
+            transform: translateY(-1px);
+        }
+        #save-btn:active {
+            transform: translateY(0);
         }
         .small {
             font-size: 0.85rem;
             color: #555;
+            margin-top: 0.5rem;
+            display: block;
+        }
+        footer {
+            margin-top: 3rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* For centering search bar if it were present */
+        .search-container {
+            display: flex;
+            justify-content: center; /* Centers horizontally */
+            align-items: center;     /* Centers vertically */
+            width: 100%;
+            margin-bottom: 2rem; /* Add some space below */
+        }
+        .search-input {
+            padding: 10px;
+            width: 300px; /* Example width */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -52,6 +141,7 @@
         <p>Pick a username and optionally upload a profile picture.</p>
     </header>
 
+    <!-- Centered content -->
     <main class="auth-container">
         <div class="profile-form">
             <div class="avatar-preview" id="avatar-preview">
@@ -62,7 +152,7 @@
                 <label for="avatar-input" class="upload-label">Upload profile picture (optional)</label>
             </div>
             <div>
-                <label for="username">Username:</label><br/>
+                <label for="username">Username:</label>
                 <input type="text" id="username" placeholder="e.g. quibblesfan" required />
             </div>
             <div class="small">You can skip uploading a picture; a default icon will be used.</div>
@@ -89,7 +179,7 @@
             appId: "1:726397658400:web:cac926ec2cbffea890a345",
             measurementId: "G-RT218LJWLP"
         };
-        
+
         // Initialize the app and get service instances
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -106,7 +196,7 @@
                 window.location.href = "dashboard.html";
                 return;
             }
-            
+
             const fallbackInitial = user.email ? user.email[0].toUpperCase() : "?";
             document.getElementById("avatar-initial").textContent = fallbackInitial;
         });
@@ -120,6 +210,7 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (e) => {
+                // Hide the initial character and show the image preview
                 avatarInitial.style.display = "none";
                 avatarPreview.style.backgroundImage = `url(${e.target.result})`;
                 avatarPreview.style.backgroundSize = "cover";
@@ -137,7 +228,7 @@
                 alert("Please enter a username.");
                 return;
             }
-            
+
             if (username.length < 3 || username.length > 20) {
                 alert("Username must be 3–20 characters.");
                 return;
@@ -146,20 +237,35 @@
             try {
                 let photoURL = null;
                 const file = avatarInput.files[0];
-
                 if (file) {
-                    // Modern modular syntax for storage
-                    const storageRef = ref(storage, `avatars/${user.uid}`);
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        alert("Please select an image file.");
+                        return;
+                    }
+
+                    // Validate file size (max 5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert("File size must be less than 5MB.");
+                        return;
+                    }
+
+                    // Upload to Firebase Storage with timestamp
+                    const timestamp = Date.now();
+                    const fileExtension = file.name.split('.').pop();
+                    const fileName = `profile-pictures/${user.uid}_${timestamp}.${fileExtension}`;
+                    const storageRef = ref(storage, fileName);
                     await uploadBytes(storageRef, file);
                     photoURL = await getDownloadURL(storageRef);
                 }
 
-                // Modular syntax for updating the user profile
+                // Update the user profile
                 await updateProfile(user, {
                     displayName: username,
                     ...(photoURL && { photoURL })
                 });
 
+                alert("Profile setup complete!");
                 window.location.href = "dashboard.html";
             } catch (err) {
                 console.error(err);

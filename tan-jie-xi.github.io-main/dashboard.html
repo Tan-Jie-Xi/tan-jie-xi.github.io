@@ -234,11 +234,15 @@
       max-width: 900px;
       margin: 0 auto;
       width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     
     .dashboard-content {
       max-width: 800px;
       margin: 0 auto;
+      text-align: center;
     }
     
     /* Typography */
@@ -247,16 +251,17 @@
       margin-bottom: 2rem;
       color: #000000;
       font-weight: 700;
-      text-align: left;
+      text-align: center;
     }
     
     /* Search Container */
     .search-container {
       display: flex;
       align-items: center;
+      justify-content: center;
       margin-bottom: 3rem;
       max-width: 400px;
-      margin-left: 0;
+      margin-left: auto;
       margin-right: auto;
     }
     
@@ -294,6 +299,8 @@
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1.5rem;
       max-width: 800px;
+      margin: 0 auto;
+      justify-content: center;
     }
     
     .tool-card {
@@ -547,7 +554,10 @@
       });
     }
 
-    document.getElementById("logout-btn").addEventListener("click", doLogout);
+    // Add event listeners only if elements exist
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) logoutBtn.addEventListener("click", doLogout);
+    
     document.getElementById("dropdown-logout").addEventListener("click", doLogout);
     document.getElementById("nav-logout").addEventListener("click", doLogout);
   </script>
