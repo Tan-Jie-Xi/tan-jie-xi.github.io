@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name Selector - Quask</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="page-container">
+    <!-- Header Navigation -->
+    <header class="dashboard-header">
+      <div class="header-left">
+        <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+        <div class="logo" onclick="window.location.href='dashboard.html'" style="cursor: pointer;">Quask</div>
+      </div>
+      <div class="profile-section">
+        <div class="profile-avatar" id="profile-avatar">
+          <span id="avatar-initial">?</span>
+        </div>
+        <!-- Dropdown menu -->
+        <div class="dropdown" id="dropdownMenu">
+          <strong>Settings</strong>
+          <a href="../profilepicture.html">Profile Picture</a>
+          <a href="username.html">Username</a>
+          <a href="#" id="dropdown-logout">Log Out</a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="assets/logo.png" alt="Logo">
+          <img src="assets/quask.png" alt="Quask">
+        </div>
+        <span class="close-btn" onclick="closeSidebar()">&times;</span>
+      </div>
+
+      <div class="nav-section">
+        <h2>Dashboard</h2>
+        <div class="nav-links">
+          <a href="dashboard.html">Back to Dashboard</a>
+          <a href="question-generator.html">Question Generator</a>
+          <a href="quiz-library.html">Quiz Library</a>
+          <a href="#">Class Progress Tracker</a>
+          <a href="name-selector.html">Random Name Selector</a>
+          <a href="fact-checker.html">AI Fact Checker</a>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <h2>Account Settings</h2>
+        <div class="nav-links">
+          <a href="../profilepicture.html">Profile Picture</a>
+          <a href="username.html">Username</a>
+          <a href="#" id="nav-logout">Log Out</a>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="content-header">
+        <div class="header-text" style="text-align: center; width: 100%;">
+          <h1>Name Selector</h1>
+      </div>
+
+      <!-- Name Input Section -->
+      <div class="name-input-section">
+        <div class="input-methods">
+          <div class="input-method-card">
+            <h3>Manual Input</h3>
+            <textarea 
+              id="names-input" 
+              placeholder="Enter student names (one per line)&#10;John Smith&#10;Mary Johnson&#10;David Wilson&#10;..."
+              rows="6"
+              style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-family: inherit; resize: vertical; margin-bottom: 1rem;"></textarea>
+            <button id="add-names-btn" class="action-btn">Add Names</button>
+          </div>
+
+          <div class="input-method-card">
+            <h3>Upload File</h3>
+            <p>Upload an image or PDF containing student names</p>
+            <div class="file-upload-area" id="file-upload-area">
+              <div class="upload-content">
+                <div class="upload-icon">📄</div>
+                <p>Click to upload or drag & drop</p>
+                <small>Supports: JPG, PNG, PDF</small>
+              </div>
+              <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;">
+            </div>
+            <button id="extract-names-btn" class="action-btn" disabled>Extract Names</button>
+          </div>
+        </div>
+
+        <!-- Current Names List -->
+        <div class="current-names-section">
+          <h3>Current Names (<span id="names-count">0</span>)</h3>
+          <div class="names-list" id="names-list">
+            <p class="empty-state">No names added yet. Add some names to get started!</p>
+          </div>
+          <div class="names-actions">
+            <button id="clear-names-btn" class="action-btn secondary">Clear All</button>
+            <button id="remove-selected-btn" class="action-btn secondary" style="display: none;">Remove Selected</button>
+          </div>
+        </div>
+
+        <!-- Class Management Section -->
+        <div class="class-management-section">
+          <h3>Class Management</h3>
+          <div class="class-actions">
+            <div class="save-class-container">
+              <input type="text" id="class-name-input" placeholder="Enter class name (e.g., Math 101)" class="class-name-input">
+              <button id="save-class-btn" class="action-btn">Save Class</button>
+            </div>
+            <div class="load-class-container">
+              <select id="saved-classes-select" class="saved-classes-select">
+                <option value="">Select a saved class...</option>
+              </select>
+              <button id="load-class-btn" class="action-btn secondary">Load Class</button>
+              <button id="delete-class-btn" class="action-btn danger">Delete Class</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wheel Section -->
+      <div class="wheel-section">
+        <div class="wheel-container">
+          <canvas id="wheel-canvas" width="400" height="400"></canvas>
+          <div class="wheel-pointer"></div>
+          <button id="spin-btn" class="spin-button" disabled>
+            <span>SPIN THE WHEEL</span>
+          </button>
+        </div>
+        
+        <div class="wheel-result" id="wheel-result" style="display: none;">
+          <h3>Selected:</h3>
+          <div class="selected-name" id="selected-name"></div>
+          <button id="spin-again-btn" class="action-btn">Spin Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+      authDomain: "quask-a9e1b.firebaseapp.com",
+      projectId: "quask-a9e1b",
+      storageBucket: "quask-a9e1b.firebasestorage.app",
+      messagingSenderId: "276349627130",
+      appId: "1:276349627130:web:5a3d7ffe1b6b4f9f3b2b4a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+      }
+    });
+
+    // Handle logout
+    function doLogout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    // Add event listeners only if elements exist
+    const logoutBtn = document.getElementById("dropdown-logout");
+    if (logoutBtn) logoutBtn.addEventListener("click", doLogout);
+    
+    const navLogoutBtn = document.getElementById("nav-logout");
+    if (navLogoutBtn) navLogoutBtn.addEventListener("click", doLogout);
+
+    const avatar = document.getElementById("profile-avatar");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const dropdown = document.getElementById("dropdownMenu");
+
+    // Sidebar navigation functions
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+
+    // Toggle dropdown on avatar click
+    avatar.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    // Class Management System
+    class ClassLibrary {
+      constructor() {
+        this.storageKey = 'quask_class_library';
+      }
+
+      // Get all saved classes
+      getSavedClasses() {
+        const saved = localStorage.getItem(this.storageKey);
+        return saved ? JSON.parse(saved) : {};
+      }
+
+      // Save a class with its name list
+      saveClass(className, namesList) {
+        const classes = this.getSavedClasses();
+        classes[className] = {
+          names: namesList,
+          savedAt: new Date().toISOString(),
+          lastUsed: new Date().toISOString()
+        };
+        localStorage.setItem(this.storageKey, JSON.stringify(classes));
+        return true;
+      }
+
+      // Load a class and return its name list
+      loadClass(className) {
+        const classes = this.getSavedClasses();
+        if (classes[className]) {
+          // Update last used timestamp
+          classes[className].lastUsed = new Date().toISOString();
+          localStorage.setItem(this.storageKey, JSON.stringify(classes));
+          return classes[className].names;
+        }
+        return null;
+      }
+
+      // Delete a saved class
+      deleteClass(className) {
+        const classes = this.getSavedClasses();
+        if (classes[className]) {
+          delete classes[className];
+          localStorage.setItem(this.storageKey, JSON.stringify(classes));
+          return true;
+        }
+        return false;
+      }
+
+      // Get list of class names sorted by last used
+      getClassNames() {
+        const classes = this.getSavedClasses();
+        return Object.keys(classes).sort((a, b) => {
+          return new Date(classes[b].lastUsed) - new Date(classes[a].lastUsed);
+        });
+      }
+    }
+
+    const classLibrary = new ClassLibrary();
+
+    // Name Selector functionality
+    let studentNames = [];
+    let isSpinning = false;
+
+    const namesInput = document.getElementById('names-input');
+    const addNamesBtn = document.getElementById('add-names-btn');
+    const fileInput = document.getElementById('file-input');
+    const fileUploadArea = document.getElementById('file-upload-area');
+    const extractNamesBtn = document.getElementById('extract-names-btn');
+    const namesList = document.getElementById('names-list');
+    const namesCount = document.getElementById('names-count');
+    const clearNamesBtn = document.getElementById('clear-names-btn');
+    const spinBtn = document.getElementById('spin-btn');
+    const wheelCanvas = document.getElementById('wheel-canvas');
+    const wheelResult = document.getElementById('wheel-result');
+    const selectedNameDiv = document.getElementById('selected-name');
+    const spinAgainBtn = document.getElementById('spin-again-btn');
+
+    // Class management elements
+    const classNameInput = document.getElementById('class-name-input');
+    const saveClassBtn = document.getElementById('save-class-btn');
+    const savedClassesSelect = document.getElementById('saved-classes-select');
+    const loadClassBtn = document.getElementById('load-class-btn');
+    const deleteClassBtn = document.getElementById('delete-class-btn');
+
+    // Canvas setup
+    const ctx = wheelCanvas.getContext('2d');
+    let currentRotation = 0;
+
+    // File upload handling
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.backgroundColor = '#f0fdf4';
+    });
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.style.backgroundColor = '';
+    });
+    fileUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileUploadArea.style.backgroundColor = '';
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        handleFileSelect();
+      }
+    });
+
+    fileInput.addEventListener('change', handleFileSelect);
+
+    function handleFileSelect() {
+      const file = fileInput.files[0];
+      if (file) {
+        extractNamesBtn.disabled = false;
+        fileUploadArea.querySelector('.upload-content p').textContent = `Selected: ${file.name}`;
+      }
+    }
+
+    // Add names functionality
+    addNamesBtn.addEventListener('click', () => {
+      const input = namesInput.value.trim();
+      if (input) {
+        const newNames = input.split('\n')
+          .map(name => name.trim())
+          .filter(name => name.length > 0 && !studentNames.includes(name));
+        
+        studentNames.push(...newNames);
+        namesInput.value = '';
+        updateNamesList();
+        updateWheel();
+      }
+    });
+
+    // Extract names from file
+    extractNamesBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      extractNamesBtn.textContent = 'Extracting...';
+      extractNamesBtn.disabled = true;
+
+      try {
+        await extractTextFromFile(file);
+      } catch (error) {
+        console.error('Error extracting text:', error);
+        alert('Error extracting text from file: ' + error.message + '. Please try again or use manual input.');
+      } finally {
+        extractNamesBtn.textContent = 'Extract Names';
+        extractNamesBtn.disabled = false;
+      }
+    });
+
+    // Text extraction using DeepSeek Vision API
+    async function extractTextFromFile(file) {
+      console.log('Starting text extraction using DeepSeek API...');
+      
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/extract-text', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to extract text');
+        }
+
+        const result = await response.json();
+        
+        console.log('Text extraction completed:', result);
+        
+        if (result.success && result.names && result.names.length > 0) {
+          // Add the extracted names to our list
+          const newNames = result.names.filter(name => !studentNames.includes(name));
+          studentNames.push(...newNames);
+          updateNamesList();
+          updateWheel();
+          
+          alert(`Successfully extracted ${newNames.length} names from the file!\n\nNames found: ${newNames.join(', ')}`);
+        } else if (result.success && result.extractedText) {
+          // If no names were automatically detected, show the extracted text
+          alert(`Text was extracted but no names were automatically detected. Here's what was found:\n\n${result.extractedText.substring(0, 500)}${result.extractedText.length > 500 ? '...' : ''}\n\nYou can copy this text and paste it into the manual input field.`);
+        } else {
+          alert('No text could be extracted from the file. Please try a clearer image or use manual input.');
+        }
+      } catch (error) {
+        console.error('Error extracting text:', error);
+        throw error;
+      }
+    }
+
+
+    // This function is no longer needed as name processing is handled by the server
+
+    // Update names list display
+    function updateNamesList() {
+      namesCount.textContent = studentNames.length;
+
+      if (studentNames.length === 0) {
+        namesList.innerHTML = '<p class="empty-state">No names added yet. Add some names to get started!</p>';
+        spinBtn.disabled = true;
+      } else {
+        namesList.innerHTML = studentNames.map((name, index) => 
+          `<div class="name-item">
+            <input type="checkbox" id="name-${index}" value="${name}">
+            <label for="name-${index}">${name}</label>
+            <button class="remove-name-btn" onclick="removeName(${index})">×</button>
+           </div>`
+        ).join('');
+        spinBtn.disabled = false;
+      }
+    }
+
+    // Remove individual name
+    window.removeName = function(index) {
+      studentNames.splice(index, 1);
+      updateNamesList();
+      updateWheel();
+    };
+
+    // Clear all names
+    clearNamesBtn.addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all names?')) {
+        studentNames = [];
+        updateNamesList();
+        updateWheel();
+        wheelResult.style.display = 'none';
+      }
+    });
+
+    // Wheel drawing and spinning
+    function drawWheel() {
+      const centerX = wheelCanvas.width / 2;
+      const centerY = wheelCanvas.height / 2;
+      const radius = 180;
+
+      ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+
+      if (studentNames.length === 0) {
+        // Draw empty wheel
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#f3f4f6';
+        ctx.fill();
+        ctx.strokeStyle = '#d1d5db';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Empty wheel - no text needed
+        return;
+      }
+
+      const anglePerSegment = (2 * Math.PI) / studentNames.length;
+      const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+
+      studentNames.forEach((name, index) => {
+        const startAngle = index * anglePerSegment + currentRotation;
+        const endAngle = startAngle + anglePerSegment;
+        const color = colors[index % colors.length];
+
+        // Draw segment
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Draw text
+        const textAngle = startAngle + anglePerSegment / 2;
+        const textX = centerX + Math.cos(textAngle) * (radius * 0.7);
+        const textY = centerY + Math.sin(textAngle) * (radius * 0.7);
+
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.rotate(textAngle + Math.PI / 2);
+        ctx.fillStyle = '#ffffff';
+        
+        // Handle long names by adjusting font size and truncating if necessary
+        let displayName = name;
+        let fontSize = 14;
+        
+        // Calculate maximum width based on segment angle and radius
+        const segmentArcLength = radius * anglePerSegment * 0.6; // Use 60% of arc length
+        const maxWidth = Math.min(segmentArcLength, radius * 0.4); // Also limit by radius
+        
+        // Estimate text width and adjust font size for long names
+        ctx.font = `bold ${fontSize}px Quicksand`;
+        let textWidth = ctx.measureText(displayName).width;
+        
+        // If text is too wide for the segment, reduce font size
+        while (textWidth > maxWidth && fontSize > 8) {
+          fontSize -= 1;
+          ctx.font = `bold ${fontSize}px Quicksand`;
+          textWidth = ctx.measureText(displayName).width;
+        }
+        
+        // If still too long, truncate with ellipsis
+        if (textWidth > maxWidth && displayName.length > 3) {
+          while (textWidth > maxWidth && displayName.length > 3) {
+            displayName = displayName.slice(0, -1);
+            textWidth = ctx.measureText(displayName + '...').width;
+          }
+          if (displayName.length > 3) {
+            displayName += '...';
+          }
+        }
+        
+        ctx.textAlign = 'center';
+        ctx.fillText(displayName, 0, 0);
+        ctx.restore();
+      });
+
+      // Draw center circle
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = '#d1d5db';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+
+    function updateWheel() {
+      drawWheel();
+    }
+
+    // Spin functionality
+    spinBtn.addEventListener('click', spinWheel);
+    spinAgainBtn.addEventListener('click', spinWheel);
+
+    function spinWheel() {
+      if (isSpinning || studentNames.length === 0) return;
+
+      isSpinning = true;
+      spinBtn.disabled = true;
+      wheelResult.style.display = 'none';
+
+      const spins = 3 + Math.random() * 3; // 3-6 full rotations
+      const finalRotation = spins * 2 * Math.PI + Math.random() * 2 * Math.PI;
+      
+      animateWheel(finalRotation);
+    }
+
+    function animateWheel(targetRotation) {
+      const startRotation = currentRotation;
+      const duration = 3000; // 3 seconds
+      const startTime = Date.now();
+
+      function animate() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for natural deceleration
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        currentRotation = startRotation + (targetRotation * easeOut);
+        drawWheel();
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          finishSpin();
+        }
+      }
+
+      animate();
+    }
+
+    function finishSpin() {
+      isSpinning = false;
+      spinBtn.disabled = false;
+
+      // Calculate which name was selected
+      const anglePerSegment = (2 * Math.PI) / studentNames.length;
+      
+      // The pointer is at the top (12 o'clock position) = -π/2 radians from positive x-axis
+      // Segments start at index 0 from 0 radians (3 o'clock position)
+      // After rotation by currentRotation, we need to find which segment is under the pointer
+      
+      // Convert pointer position to the same coordinate system as segments
+      const pointerAngle = -Math.PI / 2; // Top position (12 o'clock)
+      
+      // Account for wheel rotation: if wheel rotated clockwise by currentRotation,
+      // then to find original segment position, we subtract the rotation
+      let adjustedAngle = pointerAngle - currentRotation;
+      
+      // Normalize to [0, 2π) range
+      while (adjustedAngle < 0) {
+        adjustedAngle += 2 * Math.PI;
+      }
+      adjustedAngle = adjustedAngle % (2 * Math.PI);
+      
+      // Find which segment this angle falls into
+      // Each segment i covers angles from (i * anglePerSegment) to ((i+1) * anglePerSegment)
+      let selectedIndex = Math.floor(adjustedAngle / anglePerSegment);
+      
+      // Ensure index is within bounds
+      selectedIndex = selectedIndex % studentNames.length;
+      if (selectedIndex < 0) selectedIndex += studentNames.length;
+      
+      const selectedName = studentNames[selectedIndex];
+
+      // Show result
+      selectedNameDiv.textContent = selectedName;
+      wheelResult.style.display = 'block';
+      
+      // Scroll to result
+      wheelResult.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Class Management Event Handlers
+    
+    // Update the saved classes dropdown
+    function updateSavedClassesDropdown() {
+      const classNames = classLibrary.getClassNames();
+      savedClassesSelect.innerHTML = '<option value="">Select a saved class...</option>';
+      
+      classNames.forEach(className => {
+        const option = document.createElement('option');
+        option.value = className;
+        option.textContent = className;
+        savedClassesSelect.appendChild(option);
+      });
+      
+      // Enable/disable buttons based on selection
+      const hasSelection = savedClassesSelect.value !== '';
+      loadClassBtn.disabled = !hasSelection;
+      deleteClassBtn.disabled = !hasSelection;
+    }
+
+    // Save current class
+    saveClassBtn.addEventListener('click', () => {
+      const className = classNameInput.value.trim();
+      
+      if (!className) {
+        alert('Please enter a class name.');
+        return;
+      }
+      
+      if (studentNames.length === 0) {
+        alert('Please add some names before saving the class.');
+        return;
+      }
+
+      // Check if class already exists
+      const existingClasses = classLibrary.getSavedClasses();
+      if (existingClasses[className]) {
+        if (!confirm(`Class "${className}" already exists. Do you want to overwrite it?`)) {
+          return;
+        }
+      }
+
+      classLibrary.saveClass(className, [...studentNames]);
+      alert(`Class "${className}" saved successfully!`);
+      classNameInput.value = '';
+      updateSavedClassesDropdown();
+    });
+
+    // Load selected class
+    loadClassBtn.addEventListener('click', () => {
+      const selectedClass = savedClassesSelect.value;
+      
+      if (!selectedClass) {
+        alert('Please select a class to load.');
+        return;
+      }
+
+      const names = classLibrary.loadClass(selectedClass);
+      if (names) {
+        if (studentNames.length > 0) {
+          if (!confirm('This will replace your current names. Continue?')) {
+            return;
+          }
+        }
+        
+        studentNames = [...names];
+        updateNamesList();
+        updateWheel();
+        wheelResult.style.display = 'none';
+        alert(`Loaded ${names.length} names from "${selectedClass}".`);
+      } else {
+        alert('Error loading class. Please try again.');
+      }
+    });
+
+    // Delete selected class
+    deleteClassBtn.addEventListener('click', () => {
+      const selectedClass = savedClassesSelect.value;
+      
+      if (!selectedClass) {
+        alert('Please select a class to delete.');
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete "${selectedClass}"? This cannot be undone.`)) {
+        if (classLibrary.deleteClass(selectedClass)) {
+          alert(`Class "${selectedClass}" deleted successfully.`);
+          updateSavedClassesDropdown();
+        } else {
+          alert('Error deleting class. Please try again.');
+        }
+      }
+    });
+
+    // Update dropdown when selection changes
+    savedClassesSelect.addEventListener('change', () => {
+      const hasSelection = savedClassesSelect.value !== '';
+      loadClassBtn.disabled = !hasSelection;
+      deleteClassBtn.disabled = !hasSelection;
+    });
+
+    // Initialize
+    updateWheel();
+    updateSavedClassesDropdown();
+  </script>
+
+  <style>
+    /* Header Styles - matching dashboard design */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #ffbd59;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+      min-width: 180px;
+      overflow: hidden;
+      z-index: 25;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dropdown strong {
+      display: block;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      background: #ffbd59;
+      color: #1f2937;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.875rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #ffde59;
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo img {
+      /* Logo images are already perfectly sized */
+    }
+
+    .sidebar-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-section {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+
+    .nav-section h2 {
+      font-weight: 700;
+      color: #d98c0b;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      color: #d98c0b;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(217, 140, 11, 0.1);
+      color: #b8750a;
+    }
+
+    .nav-links a.active {
+      background-color: rgba(217, 140, 11, 0.2);
+      color: #b8750a;
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    .name-input-section {
+      margin: 2rem 0;
+    }
+
+    .input-methods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-method-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .input-method-card h3 {
+      margin: 0 0 1rem 0;
+      color: #1f2937;
+      font-size: 1.2rem;
+    }
+
+    .file-upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1rem;
+    }
+
+    .file-upload-area:hover {
+      border-color: #ffd84d;
+      background-color: #fffbeb;
+    }
+
+    .upload-content {
+      pointer-events: none;
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .current-names-section {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .current-names-section h3 {
+      margin: 0 0 1rem 0;
+      color: #1f2937;
+    }
+
+    .names-list {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .name-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+      gap: 0.5rem;
+    }
+
+    .name-item label {
+      flex: 1;
+      cursor: pointer;
+    }
+
+    .remove-name-btn {
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .names-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .wheel-section {
+      margin: 3rem 0;
+      text-align: center;
+    }
+
+    .wheel-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 2rem;
+    }
+
+    .wheel-pointer {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 25px solid #ef4444;
+      z-index: 10;
+    }
+
+    .spin-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #ffd84d, #ffde59);
+      border: none;
+      border-radius: 50%;
+      width: 100px;
+      height: 100px;
+      font-weight: bold;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+
+    .spin-button:hover:not(:disabled) {
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    .spin-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .wheel-result {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .selected-name {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1f2937;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: linear-gradient(135deg, #ffd84d, #ffde59);
+      border-radius: 8px;
+    }
+
+    .action-btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .action-btn.secondary {
+      background: #6b7280;
+    }
+
+    .action-btn.secondary:hover {
+      background: #4b5563;
+    }
+
+    .empty-state {
+      color: #6b7280;
+      font-style: italic;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    /* Class Management Styles */
+    .class-management-section {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+    }
+
+    .class-management-section h3 {
+      margin: 0 0 1rem 0;
+      color: #1f2937;
+    }
+
+    .class-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .save-class-container,
+    .load-class-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .class-name-input,
+    .saved-classes-select {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-family: inherit;
+      min-width: 200px;
+    }
+
+    .class-name-input:focus,
+    .saved-classes-select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .action-btn.danger {
+      background: #dc2626;
+    }
+
+    .action-btn.danger:hover:not(:disabled) {
+      background: #b91c1c;
+    }
+
+    @media (max-width: 768px) {
+      .input-methods {
+        grid-template-columns: 1fr;
+      }
+      
+      #wheel-canvas {
+        width: 300px;
+        height: 300px;
+      }
+    }
+  </style>
+</body>
+</html>

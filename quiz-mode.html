@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Mode – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+      cursor: pointer;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #000000;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .quiz-container {
+      max-width: 800px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .class-input {
+      background: #facc15;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .class-input input {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 4px;
+      background: #ffffff;
+      font-size: 1rem;
+      color: #374151;
+    }
+
+    .class-input input::placeholder {
+      color: #9ca3af;
+    }
+
+    .question-container {
+      background: #ffd84d;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .question-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #000000;
+      margin-bottom: 1rem;
+    }
+
+    .question-content {
+      background: #ffffff;
+      border: 2px solid #000000;
+      border-radius: 6px;
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .answer-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .answer-input {
+      background: #ffffff;
+      border: 2px solid #000000;
+      border-radius: 6px;
+      padding: 1.5rem;
+      font-size: 1rem;
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .answer-input::placeholder {
+      color: #6b7280;
+    }
+
+    .multiple-choice {
+      display: none;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .choice-option {
+      background: #ffffff;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .choice-option:hover {
+      border-color: #ffd84d;
+      background: #fffbeb;
+    }
+
+    .choice-option.selected {
+      border-color: #ffd84d;
+      background: #ffd84d;
+      color: #000000;
+    }
+
+    .choice-letter {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .confirm-button {
+      background: #f59e0b;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: background-color 0.2s ease;
+    }
+
+    .confirm-button:hover {
+      background: #d97706;
+    }
+
+    .confirm-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .result-section {
+      display: none;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .result-section.correct {
+      background: #d1fae5;
+      border: 2px solid #10b981;
+    }
+
+    .result-section.incorrect {
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+    }
+
+    .result-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .result-title.correct {
+      color: #059669;
+    }
+
+    .result-title.incorrect {
+      color: #dc2626;
+    }
+
+    .explanation {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #374151;
+      margin-bottom: 1.5rem;
+    }
+
+    .next-button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .next-button:hover {
+      background: #2563eb;
+    }
+
+    .view-results-button {
+      background: #059669;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .view-results-button:hover {
+      background: #047857;
+    }
+
+    .progress-info {
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+      font-size: 1.2rem;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .quiz-container {
+        padding: 1rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="goBack()">←</span>
+      <div class="logo" onclick="window.location.href='dashboard.html'">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Quiz Mode</h1>
+
+    <div class="quiz-container">
+      <div class="class-input">
+        <input type="text" id="class-name" placeholder="Enter class">
+      </div>
+
+      <div id="loading-section" class="loading">
+        Generating your quiz questions...
+      </div>
+
+      <div id="quiz-section" style="display: none;">
+        <div class="progress-info">
+          Question <span id="current-question">1</span> of <span id="total-questions">5</span>
+        </div>
+
+        <div class="question-container">
+          <div class="question-title">QUESTION</div>
+          <div class="question-content" id="question-text">
+            <!-- Question will be loaded here -->
+          </div>
+
+          <div class="answer-section">
+            <textarea class="answer-input" id="text-answer" placeholder="ENTER ANSWER"></textarea>
+
+            <div class="multiple-choice" id="multiple-choice">
+              <div class="choice-option" data-choice="A">
+                <span class="choice-letter">A.</span>
+                <span class="choice-text"></span>
+              </div>
+              <div class="choice-option" data-choice="B">
+                <span class="choice-letter">B.</span>
+                <span class="choice-text"></span>
+              </div>
+              <div class="choice-option" data-choice="C">
+                <span class="choice-letter">C.</span>
+                <span class="choice-text"></span>
+              </div>
+              <div class="choice-option" data-choice="D">
+                <span class="choice-letter">D.</span>
+                <span class="choice-text"></span>
+              </div>
+            </div>
+
+            <button class="confirm-button" id="confirm-btn">CONFIRM</button>
+          </div>
+
+          <div class="result-section" id="result-section">
+            <div class="result-title" id="result-title">CORRECT</div>
+            <div class="explanation" id="explanation">
+              <!-- Explanation will be shown here -->
+            </div>
+            <button class="next-button" id="next-btn" style="display: none;">Next</button>
+            <button class="view-results-button" id="view-results-btn" style="display: none;">View and Save Results</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    // Use shared Firebase instances
+    let auth;
+    
+    // Wait for Firebase to be ready
+    window.firebaseReady.then(({ auth: firebaseAuth }) => {
+      auth = firebaseAuth;
+      
+      // Initialize page after Firebase is ready
+      initializePage();
+    });
+
+    // Quiz state
+    let quizData = {
+      questions: [],
+      currentQuestionIndex: 0,
+      userAnswers: [],
+      settings: {
+        shuffle: false,
+        questionType: 'mix',
+        questionCount: 5
+      }
+    };
+
+    // DOM elements
+    const loadingSection = document.getElementById('loading-section');
+    const quizSection = document.getElementById('quiz-section');
+    const questionText = document.getElementById('question-text');
+    const textAnswer = document.getElementById('text-answer');
+    const multipleChoice = document.getElementById('multiple-choice');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const resultSection = document.getElementById('result-section');
+    const resultTitle = document.getElementById('result-title');
+    const explanation = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const viewResultsBtn = document.getElementById('view-results-btn');
+    const currentQuestionSpan = document.getElementById('current-question');
+    const totalQuestionsSpan = document.getElementById('total-questions');
+
+    // Get quiz settings from URL parameters
+    function getQuizSettings() {
+      const urlParams = new URLSearchParams(window.location.search);
+      return {
+        grade: urlParams.get('grade') || 'Primary 5',
+        subject: urlParams.get('subject') || 'Math',
+        syllabus: urlParams.get('syllabus') || 'KSSR',
+        language: urlParams.get('language') || 'English',
+        topic: urlParams.get('topic') || 'General Topic',
+        shuffle: urlParams.get('shuffle') === 'true',
+        questionType: urlParams.get('questionType') || 'mix',
+        questionCount: parseInt(urlParams.get('questionCount')) || 5,
+        quizId: urlParams.get('quizId') || null,
+        quizName: urlParams.get('quizName') || null
+      };
+    }
+
+    // Generate quiz questions
+    async function generateQuiz() {
+      // Check if questions are pre-generated from question generator
+      const preGeneratedData = sessionStorage.getItem('generatedQuestions');
+      if (preGeneratedData) {
+        try {
+          const data = JSON.parse(preGeneratedData);
+          quizData.questions = data.questions;
+          quizData.settings = data.settings;
+          // Set quiz ID and name for proper result tracking
+          quizData.id = data.id || null;
+          quizData.name = data.name || 'Generated Quiz';
+
+          // Update UI with settings
+          totalQuestionsSpan.textContent = data.questions.length;
+
+          // Apply shuffle if enabled
+          if (data.settings.shuffle) {
+            shuffleArray(quizData.questions);
+          }
+
+          // Clean up sessionStorage
+          sessionStorage.removeItem('generatedQuestions');
+
+          loadingSection.style.display = 'none';
+          quizSection.style.display = 'block';
+          showCurrentQuestion();
+          return;
+        } catch (error) {
+          console.error('Error loading pre-generated questions:', error);
+          // Fall through to API generation
+        }
+      }
+
+      // Fallback to API generation
+      const settings = getQuizSettings();
+      quizData.settings = settings;
+      
+      // Use quiz ID from URL if available, otherwise generate one
+      quizData.id = settings.quizId || ('generated_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+      quizData.name = settings.quizName || `${settings.subject} Quiz - ${settings.topic}`;
+      totalQuestionsSpan.textContent = settings.questionCount;
+
+      const questionTypes = settings.questionType === 'mix' 
+        ? ['multiple-choice', 'written'] 
+        : [settings.questionType === 'multiple-choice' ? 'multiple-choice' : 'written'];
+
+      try {
+        for (let i = 0; i < settings.questionCount; i++) {
+          const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+          const question = await generateSingleQuestion(settings, questionType);
+          quizData.questions.push(question);
+        }
+
+        if (settings.shuffle) {
+          shuffleArray(quizData.questions);
+        }
+
+        loadingSection.style.display = 'none';
+        quizSection.style.display = 'block';
+        showCurrentQuestion();
+      } catch (error) {
+        console.error('Error generating quiz:', error);
+        loadingSection.innerHTML = 'Error generating quiz. Please try again.';
+      }
+    }
+
+    // Generate a single question
+    async function generateSingleQuestion(settings, questionType) {
+      const prompt = questionType === 'multiple-choice' 
+        ? `Create a ${settings.grade} ${settings.subject} multiple choice question about "${settings.topic}" following ${settings.syllabus} syllabus. Generate in ${settings.language}.
+
+REQUIREMENTS:
+- Create ONE multiple choice question with 4 options (A, B, C, D)
+- Only ONE option should be correct
+- Include a brief explanation for the correct answer
+- Use plain text only, no markdown
+
+Format as JSON:
+{
+  "question": "question text",
+  "options": ["A option", "B option", "C option", "D option"],
+  "correctAnswer": "A",
+  "explanation": "brief explanation text",
+  "type": "multiple-choice"
+}`
+        : `Create a ${settings.grade} ${settings.subject} written question about "${settings.topic}" following ${settings.syllabus} syllabus. Generate in ${settings.language}.
+
+REQUIREMENTS:
+- Create ONE written question that requires a short answer
+- Provide the expected answer
+- Include a brief explanation
+- Use plain text only, no markdown
+
+Format as JSON:
+{
+  "question": "question text",
+  "correctAnswer": "expected answer text",
+  "explanation": "brief explanation text",
+  "type": "written"
+}`;
+
+      // Use server-side API endpoint instead of direct API calls
+      const response = await fetch('/api/generate-question', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+          questionType: settings.mode
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // If server returns demo mode, throw error to use fallback
+      if (data.demo) {
+        throw new Error('API not available, using demo question');
+      }
+      
+      return JSON.parse(data.content);
+    }
+
+    // Shuffle array function
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    // Show current question
+    function showCurrentQuestion() {
+      const question = quizData.questions[quizData.currentQuestionIndex];
+      currentQuestionSpan.textContent = quizData.currentQuestionIndex + 1;
+
+      questionText.textContent = question.question;
+
+      // Reset UI
+      textAnswer.style.display = 'none';
+      multipleChoice.style.display = 'none';
+      resultSection.style.display = 'none';
+      confirmBtn.style.display = 'block';
+      confirmBtn.disabled = false;
+
+      if (question.type === 'multiple-choice') {
+        multipleChoice.style.display = 'flex';
+        const choices = multipleChoice.querySelectorAll('.choice-option');
+        choices.forEach((choice, index) => {
+          choice.classList.remove('selected');
+          choice.querySelector('.choice-text').textContent = question.options[index];
+        });
+      } else {
+        textAnswer.style.display = 'block';
+        textAnswer.value = '';
+      }
+    }
+
+    // Handle multiple choice selection
+    multipleChoice.addEventListener('click', (e) => {
+      const option = e.target.closest('.choice-option');
+      if (option) {
+        multipleChoice.querySelectorAll('.choice-option').forEach(opt => 
+          opt.classList.remove('selected')
+        );
+        option.classList.add('selected');
+      }
+    });
+
+    // AI-based answer evaluation for written questions
+    async function evaluateWrittenAnswer(userAnswer, correctAnswer, questionText) {
+      try {
+        console.log('🤖 Using AI to evaluate written answer...');
+        
+        const response = await fetch('/api/evaluate-answer', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userAnswer: userAnswer,
+            correctAnswer: correctAnswer,
+            questionText: questionText
+          })
+        });
+
+        if (!response.ok) {
+          console.warn('AI evaluation failed, using fallback matching');
+          // Fallback to simple comparison if API fails
+          return userAnswer.toLowerCase().includes(correctAnswer.toLowerCase()) ||
+                 correctAnswer.toLowerCase().includes(userAnswer.toLowerCase());
+        }
+
+        const data = await response.json();
+        console.log('🎯 AI evaluation result:', data.isCorrect, data.demo ? '(demo mode)' : '(AI powered)');
+        return data.isCorrect;
+      } catch (error) {
+        console.error('Error evaluating answer:', error);
+        console.warn('Using fallback matching due to error');
+        // Fallback to simple comparison
+        return userAnswer.toLowerCase().includes(correctAnswer.toLowerCase()) ||
+               correctAnswer.toLowerCase().includes(userAnswer.toLowerCase());
+      }
+    }
+
+    // Handle answer submission
+    confirmBtn.addEventListener('click', async () => {
+      const question = quizData.questions[quizData.currentQuestionIndex];
+      let userAnswer = '';
+      let isCorrect = false;
+
+      if (question.type === 'multiple-choice') {
+        const selected = multipleChoice.querySelector('.choice-option.selected');
+        if (!selected) {
+          alert('Please select an answer');
+          return;
+        }
+        userAnswer = selected.dataset.choice;
+        isCorrect = userAnswer === question.correctAnswer;
+      } else {
+        userAnswer = textAnswer.value.trim();
+        if (!userAnswer) {
+          alert('Please enter an answer');
+          return;
+        }
+        
+        // Show loading state for AI evaluation
+        const originalText = confirmBtn.textContent;
+        confirmBtn.textContent = '🤖 AI is checking your answer...';
+        confirmBtn.disabled = true;
+        
+        try {
+          // AI-based answer evaluation for better accuracy
+          isCorrect = await evaluateWrittenAnswer(userAnswer, question.correctAnswer, question.question);
+        } finally {
+          // Restore button state
+          confirmBtn.textContent = originalText;
+          confirmBtn.disabled = false;
+        }
+      }
+
+      // Save user answer
+      quizData.userAnswers.push({
+        question: question.question,
+        userAnswer: userAnswer,
+        correctAnswer: question.correctAnswer,
+        isCorrect: isCorrect,
+        explanation: question.explanation,
+        type: question.type,
+        options: question.options || null
+      });
+
+      // Show result
+      showResult(isCorrect, question.explanation);
+    });
+
+    // Show result
+    function showResult(isCorrect, explanationText) {
+      confirmBtn.style.display = 'none';
+      resultSection.style.display = 'block';
+
+      const question = quizData.questions[quizData.currentQuestionIndex];
+
+      if (isCorrect) {
+        resultSection.className = 'result-section correct';
+        resultTitle.className = 'result-title correct';
+        resultTitle.textContent = 'CORRECT';
+        explanation.innerHTML = `<strong>Explanation:</strong> ${explanationText}`;
+      } else {
+        resultSection.className = 'result-section incorrect';
+        resultTitle.className = 'result-title incorrect';
+        resultTitle.textContent = 'INCORRECT';
+        explanation.innerHTML = `
+          <div style="margin-bottom: 1rem;"><strong>Correct Answer:</strong> ${question.correctAnswer}</div>
+          <div><strong>Explanation:</strong> ${explanationText}</div>
+        `;
+      }
+
+      if (quizData.currentQuestionIndex < quizData.questions.length - 1) {
+        nextBtn.style.display = 'block';
+        viewResultsBtn.style.display = 'none';
+      } else {
+        nextBtn.style.display = 'none';
+        viewResultsBtn.style.display = 'block';
+      }
+    }
+
+    // Next question
+    nextBtn.addEventListener('click', () => {
+      quizData.currentQuestionIndex++;
+      showCurrentQuestion();
+    });
+
+    // View results
+    viewResultsBtn.addEventListener('click', async () => {
+      const className = document.getElementById('class-name').value.trim();
+
+      // Calculate score
+      const correctAnswers = quizData.userAnswers.filter(r => r.isCorrect).length;
+      const totalQuestions = quizData.userAnswers.length;
+      const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+      // Prepare results data
+      const resultsData = {
+        results: quizData.userAnswers,
+        className: className || 'Unnamed Class',
+        score: {
+          correct: correctAnswers,
+          total: totalQuestions,
+          percentage: percentage
+        },
+        quizSettings: quizData.settings,
+        quizId: quizData.id || null,
+        quizName: quizData.name || 'Generated Quiz',
+        timestamp: new Date().toISOString()
+      };
+
+      // Store results in sessionStorage for immediate display
+      sessionStorage.setItem('quizResults', JSON.stringify(resultsData));
+
+      // Save to Firebase if available, otherwise localStorage
+      try {
+        if (window.FirestoreDataManager && auth.currentUser) {
+          const firestoreManager = new window.FirestoreDataManager();
+          await firestoreManager.saveQuizResult({
+            ...resultsData,
+            id: 'result_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+          });
+          console.log('Quiz result saved to Firebase');
+        } else {
+          // Fallback to localStorage
+          const savedResults = JSON.parse(localStorage.getItem('quizResultsHistory') || '[]');
+          savedResults.push({
+            ...resultsData,
+            id: 'result_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+          });
+          
+          // Keep only the last 50 results to avoid storage issues
+          if (savedResults.length > 50) {
+            savedResults.splice(0, savedResults.length - 50);
+          }
+          
+          localStorage.setItem('quizResultsHistory', JSON.stringify(savedResults));
+          console.log('Quiz result saved to localStorage');
+        }
+      } catch (error) {
+        console.error('Error saving quiz result:', error);
+        // Fallback to localStorage if Firebase fails
+        const savedResults = JSON.parse(localStorage.getItem('quizResultsHistory') || '[]');
+        savedResults.push({
+          ...resultsData,
+          id: 'result_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+        });
+        localStorage.setItem('quizResultsHistory', JSON.stringify(savedResults));
+      }
+
+      // Navigate to results page
+      window.location.href = 'quiz-results.html';
+    });
+
+    // Go back function
+    window.goBack = function() {
+      window.location.href = 'question-generator.html';
+    };
+
+    // Initialize page when Firebase is ready
+    function initializePage() {
+      // Authentication check
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "login.html";
+        } else {
+          const avatar = document.getElementById("profile-avatar");
+          const avatarInitial = document.getElementById("avatar-initial");
+
+          if (user.photoURL) {
+            avatar.style.backgroundImage = `url(${user.photoURL})`;
+            avatarInitial.style.display = "none";
+          } else {
+            avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+          }
+        }
+      });
+    }
+
+
+    // Allow Enter key to submit answers
+    textAnswer.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        confirmBtn.click();
+      }
+    });
+
+    // Start quiz generation
+    generateQuiz();
+  </script>
+</body>
+</html>

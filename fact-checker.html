@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Fact Checker – Quask</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Base Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            line-height: 1.5;
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2.5rem;
+            background: #ffffff;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Hamburger */
+        .hamburger {
+            font-size: 24px;
+            cursor: pointer;
+            color: #64748b;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .hamburger:hover {
+            background-color: #f1f5f9;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #d98c0b;
+        }
+
+        .profile-section {
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-size: 1rem;
+            color: #3730a3;
+            font-weight: 600;
+            border: 2px solid #c7d2fe;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Dropdown menu */
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 50px;
+            background-color: #ffbd59;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+            min-width: 180px;
+            overflow: hidden;
+            z-index: 25;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dropdown strong {
+            display: block;
+            padding: 12px 16px;
+            font-size: 0.875rem;
+            background: #ffbd59;
+            color: #1f2937;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: #334155;
+            font-size: 0.875rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown a:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #ffde59;
+            z-index: 100;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar.show {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-logo img {
+            /* Remove size constraints to use natural image size */
+        }
+
+        .sidebar-logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #1f2937;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-section {
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+
+        .nav-section h2 {
+            font-weight: 700;
+            color: #d98c0b;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            padding: 12px 16px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            color: #d98c0b;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(217, 140, 11, 0.1);
+            color: #b8750a;
+        }
+
+        /* Overlay for sidebar */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+            display: none;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .fact-checker-container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .input-section h2 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: Arial, sans-serif;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ffd84d;
+        }
+
+        .check-btn {
+            background: #ffd84d;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+
+        .check-btn:hover {
+            background: #ffcd33;
+        }
+
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd84d;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .truth-label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .truth-label.true {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .truth-label.false {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .truth-label.misleading {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .truth-label.unverified {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 2px solid #d6d8db;
+        }
+
+        .truth-label.outdated {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 2px solid #b8daff;
+        }
+
+        .truth-label.opinion {
+            background: #e7e3ff;
+            color: #4c4c9d;
+            border: 2px solid #d0c9ff;
+        }
+
+        .explanation {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #ffd84d;
+        }
+
+        .explanation h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .corrected-version {
+            background: #e8f5e8;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .corrected-version h3 {
+            color: #155724;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #856404;
+            text-align: center;
+        }
+
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1rem 1.5rem;
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="assets/logo.png" alt="Logo">
+                <img src="assets/quask.png" alt="Quask">
+            </div>
+            <span class="close-btn" onclick="closeSidebar()">&times;</span>
+        </div>
+
+        <div class="nav-section">
+            <h2>Dashboard</h2>
+            <div class="nav-links">
+                <a href="dashboard.html">Back to Dashboard</a>
+                <a href="question-generator.html">Question Generator</a>
+                <a href="quiz-library.html">Quiz Library</a>
+                <a href="progress-tracker.html">Class Progress Tracker</a>
+                <a href="name-selector.html">Random Name Selector</a>
+                <a href="fact-checker.html">AI Fact Checker</a>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <h2>Account Settings</h2>
+            <div class="nav-links">
+                <a href="../profilepicture.html">Profile Picture</a>
+                <a href="username.html">Username</a>
+                <a href="#" id="nav-logout">Log Out</a>
+            </div>
+        </div>
+    </div>
+
+    <header class="dashboard-header">
+        <div class="header-left">
+            <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+            <div class="logo" onclick="window.location.href='dashboard.html'">
+                Quask
+            </div>
+        </div>
+        <div class="profile-section">
+            <div class="profile-avatar" id="profile-avatar">
+                <span id="avatar-initial">?</span>
+            </div>
+            <!-- Dropdown menu -->
+            <div class="dropdown" id="dropdownMenu">
+                <strong>Settings</strong>
+                <a href="../profilepicture.html">Profile Picture</a>
+                <a href="username.html">Username</a>
+                <a href="#" id="dropdown-logout">Log Out</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <h1 class="page-title">AI Fact Checker</h1>
+        
+        <div class="fact-checker-container">
+
+        <div class="input-section">
+            <h2>Enter Content to Fact Check</h2>
+            <textarea id="content-input" placeholder="Paste or type the content you'd like to fact-check here..."></textarea>
+            <button id="check-btn" class="check-btn">Check Facts</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing content with AI...</p>
+        </div>
+
+        <div class="result-section" id="result-section">
+            <div id="truth-label" class="truth-label"></div>
+            
+            <div class="explanation">
+                <h3>Explanation</h3>
+                <div id="explanation-text"></div>
+            </div>
+
+            <div class="corrected-version" id="corrected-section" style="display: none;">
+                <h3>Corrected Version</h3>
+                <div id="corrected-text"></div>
+            </div>
+
+            <div class="disclaimer">
+                ⚠️ <strong>Important:</strong> AI fact-checking is not 100% reliable. Always verify important information through multiple reliable sources before making decisions based on this analysis.
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 Quask. All rights reserved.</p>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+            authDomain: "quask-a9e1b.firebaseapp.com",
+            projectId: "quask-a9e1b",
+            storageBucket: "quask-a9e1b.firebasestorage.app",
+            messagingSenderId: "726397658400",
+            appId: "1:726397658400:web:cac926ec2cbffea890a345",
+            measurementId: "G-RT218LJWLP"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const avatar = document.getElementById("profile-avatar");
+        const avatarInitial = document.getElementById("avatar-initial");
+        const dropdown = document.getElementById("dropdownMenu");
+
+        // Sidebar navigation functions
+        window.toggleSidebar = function() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("sidebar-overlay");
+            sidebar.classList.add("show");
+            overlay.classList.add("show");
+        }
+
+        window.closeSidebar = function() {
+            const sidebar = document.getElementById("sidebar");
+            const overlay = document.getElementById("sidebar-overlay");
+            sidebar.classList.remove("show");
+            overlay.classList.remove("show");
+        }
+
+        // Toggle dropdown on avatar click
+        avatar.addEventListener("click", () => {
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        // Close dropdown if clicked outside
+        window.addEventListener("click", (e) => {
+            if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.style.display = "none";
+            }
+        });
+
+        // Check if user is authenticated
+        onAuthStateChanged(auth, user => {
+            if (!user) {
+                window.location.href = "login.html";
+            } else {
+                if (!user.displayName || user.displayName.trim() === "") {
+                    window.location.href = "profile-setup.html";
+                    return;
+                }
+
+                if (user.photoURL) {
+                    avatar.style.backgroundImage = `url(${user.photoURL})`;
+                    avatarInitial.style.display = "none";
+                } else {
+                    avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+                }
+            }
+        });
+
+        // Handle logout
+        function doLogout() {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
+            });
+        }
+
+        document.getElementById("dropdown-logout").addEventListener("click", doLogout);
+        document.getElementById("nav-logout").addEventListener("click", doLogout);
+
+        const contentInput = document.getElementById('content-input');
+        const checkBtn = document.getElementById('check-btn');
+        const loading = document.getElementById('loading');
+        const resultSection = document.getElementById('result-section');
+        const truthLabel = document.getElementById('truth-label');
+        const explanationText = document.getElementById('explanation-text');
+        const correctedSection = document.getElementById('corrected-section');
+        const correctedText = document.getElementById('corrected-text');
+
+        checkBtn.addEventListener('click', async () => {
+            const content = contentInput.value.trim();
+            
+            if (!content) {
+                alert('Please enter some content to fact-check.');
+                return;
+            }
+
+            // Show loading state
+            checkBtn.disabled = true;
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/fact-check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: content })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fact-check content');
+                }
+
+                const result = await response.json();
+                displayResult(result);
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while fact-checking. Please try again.');
+            } finally {
+                checkBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        function displayResult(result) {
+            // Set truth label
+            truthLabel.textContent = result.label;
+            truthLabel.className = 'truth-label ' + result.labelClass;
+
+            // Set explanation
+            explanationText.textContent = result.explanation;
+
+            // Set corrected version if available
+            if (result.correctedVersion && result.correctedVersion.trim()) {
+                correctedText.textContent = result.correctedVersion;
+                correctedSection.style.display = 'block';
+            } else {
+                correctedSection.style.display = 'none';
+            }
+
+            // Show result section
+            resultSection.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

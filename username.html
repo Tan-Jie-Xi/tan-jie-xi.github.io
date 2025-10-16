@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Username Settings – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+      cursor: pointer;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Dropdown menu */
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #ffbd59;
+      min-width: 160px;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      z-index: 25;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dropdown strong {
+      display: block;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      background: #ffbd59;
+      color: #1f2937;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.875rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #ffde59;
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .sidebar-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-section {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+
+    .nav-section h2 {
+      font-weight: 700;
+      color: #d98c0b;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .nav-links a {
+      color: #1f2937;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: #64748b;
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+
+    /* Username Form */
+    .username-container {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    .current-username {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid #d98c0b;
+    }
+
+    .current-username h3 {
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .current-username p {
+      color: #64748b;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #d98c0b;
+      box-shadow: 0 0 0 3px rgba(217, 140, 11, 0.1);
+    }
+
+    .form-input.error {
+      border-color: #ef4444;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .character-count {
+      color: #64748b;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      text-align: right;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #d98c0b;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #b8750a;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #475569;
+      border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Success Message */
+    .success-message {
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    /* Footer */
+    footer {
+      background: #1e293b;
+      color: #94a3b8;
+      padding: 2rem;
+      text-align: center;
+      margin-top: auto;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
+
+      .username-container {
+        padding: 1.5rem;
+      }
+
+      .form-buttons {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="Logo">
+        <img src="assets/quask.png" alt="Quask">
+      </div>
+      <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+
+    <div class="nav-section">
+      <h2>Dashboard</h2>
+      <div class="nav-links">
+        <a href="dashboard.html">Back to Dashboard</a>
+        <a href="question-generator.html">Question Generator</a>
+        <a href="quiz-library.html">Quiz Library</a>
+        <a href="progress-tracker.html">Class Progress Tracker</a>
+        <a href="name-selector.html">Random Name Selector</a>
+        <a href="fact-checker.html">AI Fact Checker</a>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h2>Account Settings</h2>
+      <div class="nav-links">
+        <a href="profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="nav-logout">Log Out</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div class="logo" onclick="window.location.href='dashboard.html'">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <!-- Dropdown menu -->
+      <div class="dropdown" id="dropdownMenu">
+        <strong>Settings</strong>
+        <a href="profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="dropdown-logout">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Username Settings</h1>
+    <p class="page-subtitle">Customize how your name appears in Quask</p>
+
+    <div class="username-container">
+      <div class="success-message" id="success-message">
+        Username updated successfully! Your new display name is now active.
+      </div>
+
+      <div class="current-username">
+        <h3>Current Username</h3>
+        <p id="current-username-display">Loading...</p>
+      </div>
+
+      <form id="username-form">
+        <div class="form-group">
+          <label for="new-username">New Username</label>
+          <input 
+            type="text" 
+            id="new-username" 
+            class="form-input" 
+            placeholder="Enter your new username"
+            maxlength="30"
+            required
+          >
+          <div class="character-count">
+            <span id="char-count">0</span>/30 characters
+          </div>
+          <div class="error-message" id="username-error">
+            Please enter a valid username (2-30 characters)
+          </div>
+        </div>
+
+        <div class="form-buttons">
+          <button type="submit" class="btn btn-primary" id="save-btn">
+            Save Username
+          </button>
+          <a href="dashboard.html" class="btn btn-secondary">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+      authDomain: "quask-a9e1b.firebaseapp.com",
+      projectId: "quask-a9e1b",
+      storageBucket: "quask-a9e1b.firebasestorage.app",
+      messagingSenderId: "726397658400",
+      appId: "1:726397658400:web:cac926ec2cbffea890a345",
+      measurementId: "G-RT218LJWLP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // DOM elements
+    const avatar = document.getElementById("profile-avatar");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const dropdown = document.getElementById("dropdownMenu");
+    const currentUsernameDisplay = document.getElementById("current-username-display");
+    const newUsernameInput = document.getElementById("new-username");
+    const charCount = document.getElementById("char-count");
+    const usernameError = document.getElementById("username-error");
+    const successMessage = document.getElementById("success-message");
+    const usernameForm = document.getElementById("username-form");
+    const saveBtn = document.getElementById("save-btn");
+
+    // Sidebar navigation functions
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+
+    // Toggle dropdown on avatar click
+    avatar.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    // Character counter
+    newUsernameInput.addEventListener("input", () => {
+      const length = newUsernameInput.value.length;
+      charCount.textContent = length;
+      
+      // Reset error state
+      newUsernameInput.classList.remove("error");
+      usernameError.style.display = "none";
+      
+      // Validate length
+      if (length < 2 || length > 30) {
+        newUsernameInput.classList.add("error");
+        usernameError.textContent = "Username must be between 2-30 characters";
+        usernameError.style.display = "block";
+      }
+    });
+
+    // Username validation
+    function validateUsername(username) {
+      if (!username || username.trim().length < 2) {
+        return "Username must be at least 2 characters long";
+      }
+      if (username.length > 30) {
+        return "Username must be 30 characters or less";
+      }
+      if (!/^[a-zA-Z0-9\s\-_.]+$/.test(username)) {
+        return "Username can only contain letters, numbers, spaces, hyphens, underscores, and periods";
+      }
+      return null;
+    }
+
+    // Handle form submission
+    usernameForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      
+      const newUsername = newUsernameInput.value.trim();
+      const validationError = validateUsername(newUsername);
+      
+      if (validationError) {
+        newUsernameInput.classList.add("error");
+        usernameError.textContent = validationError;
+        usernameError.style.display = "block";
+        return;
+      }
+
+      // Show loading state
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+      usernameForm.classList.add("loading");
+      successMessage.style.display = "none";
+
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          throw new Error("You must be logged in to update your username");
+        }
+
+        // Update Firebase profile
+        await updateProfile(user, {
+          displayName: newUsername
+        });
+
+        // Update display
+        currentUsernameDisplay.textContent = newUsername;
+        newUsernameInput.value = "";
+        charCount.textContent = "0";
+        
+        // Show success message
+        successMessage.style.display = "block";
+        
+        // Reset form state
+        newUsernameInput.classList.remove("error");
+        usernameError.style.display = "none";
+
+        // Scroll to top to show success message
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (error) {
+        console.error("Error updating username:", error);
+        newUsernameInput.classList.add("error");
+        usernameError.textContent = "Failed to update username. Please try again.";
+        usernameError.style.display = "block";
+      } finally {
+        // Reset loading state
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Username";
+        usernameForm.classList.remove("loading");
+      }
+    });
+
+    // Handle logout
+    function doLogout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    document.getElementById("nav-logout").addEventListener("click", doLogout);
+    document.getElementById("dropdown-logout").addEventListener("click", doLogout);
+
+    // Authentication check and profile loading
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        // Update avatar
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+        
+        // Display current username
+        const currentUsername = user.displayName || user.email.split('@')[0];
+        currentUsernameDisplay.textContent = currentUsername;
+        
+        // Prefill the input with current username if it exists
+        if (user.displayName) {
+          newUsernameInput.placeholder = `Current: ${user.displayName}`;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

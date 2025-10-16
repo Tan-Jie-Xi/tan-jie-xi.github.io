@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Question Generator – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Dropdown menu */
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #ffbd59;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+      min-width: 180px;
+      overflow: hidden;
+      z-index: 25;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dropdown strong {
+      display: block;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      background: #ffbd59;
+      color: #1f2937;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.875rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #ffde59;
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo img {
+      /* Remove size constraints to use natural image size */
+    }
+
+    .sidebar-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-section {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+
+    .nav-section h2 {
+      font-weight: 700;
+      color: #d98c0b;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      color: #d98c0b;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(217, 140, 11, 0.1);
+      color: #b8750a;
+    }
+
+    /* Overlay for sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #000000;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .generator-container {
+      display: flex;
+      gap: 2rem;
+      max-width: 1200px;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 300px;
+    }
+
+    .dropdown-card {
+      background-color: #f5d982;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #d97706;
+      margin-bottom: 0.5rem;
+    }
+
+    .dropdown-select {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #ffffff;
+      font-size: 1rem;
+      color: #374151;
+      cursor: pointer;
+    }
+
+    .unit-chapter-card {
+      background-color: #facc15;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #d97706;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .generate-btn {
+      background-color: #f59e0b;
+      color: white;
+    }
+
+    .generate-btn:hover {
+      background-color: #d97706;
+    }
+
+    .save-btn {
+      background-color: #f59e0b;
+      color: white;
+    }
+
+    .save-btn:hover {
+      background-color: #d97706;
+    }
+
+    .right-panel {
+      flex: 1;
+      background-color: #f5d982;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      min-height: 500px;
+    }
+
+    .question-section, .answer-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 1rem;
+    }
+
+    .content-area {
+      background-color: #ffffff;
+      border-radius: 6px;
+      padding: 1.5rem;
+      min-height: 150px;
+      border: 2px solid #000000;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .bottom-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2rem;
+    }
+
+    .watermark {
+      color: #9ca3af;
+      font-size: 0.875rem;
+    }
+
+    .quiz-mode-btn {
+      background-color: #f59e0b;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .quiz-mode-btn:hover {
+      background-color: #d97706;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .generator-container {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .left-panel {
+        width: 100%;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="Logo">
+        <img src="assets/quask.png" alt="Quask">
+      </div>
+      <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+
+    <div class="nav-section">
+      <h2>Dashboard</h2>
+      <div class="nav-links">
+        <a href="dashboard.html">Back to Dashboard</a>
+        <a href="question-generator.html">Question Generator</a>
+        <a href="quiz-library.html">Quiz Library</a>
+        <a href="#">Class Progress Tracker</a>
+        <a href="name-selector.html">Random Name Selector</a>
+        <a href="fact-checker.html">AI Fact Checker</a>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h2>Account Settings</h2>
+      <div class="nav-links">
+        <a href="../profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="nav-logout">Log Out</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div class="logo" onclick="window.location.href='dashboard.html'">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <!-- Dropdown menu -->
+      <div class="dropdown" id="dropdownMenu">
+        <strong>Settings</strong>
+        <a href="../profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="dropdown-logout">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Question Generator</h1>
+
+    <div class="generator-container">
+      <div class="left-panel">
+        <div class="dropdown-card">
+          <div class="dropdown-label">Select grade</div>
+          <select class="dropdown-select" id="grade-select">
+            <option value="">Choose grade level...</option>
+            <option value="Primary 1">Primary 1</option>
+            <option value="Primary 2">Primary 2</option>
+            <option value="Primary 3">Primary 3</option>
+            <option value="Primary 4">Primary 4</option>
+            <option value="Primary 5">Primary 5</option>
+            <option value="Primary 6">Primary 6</option>
+            <option value="Form 1">Form 1</option>
+            <option value="Form 2">Form 2</option>
+            <option value="Form 3">Form 3</option>
+            <option value="Form 4">Form 4</option>
+            <option value="Form 5">Form 5</option>
+          </select>
+        </div>
+
+        <div class="dropdown-card">
+          <div class="dropdown-label">Select subject</div>
+          <select class="dropdown-select" id="subject-select">
+            <option value="">Choose subject...</option>
+            <option value="Math">Math</option>
+            <option value="Science">Science</option>
+            <option value="Geography">Geography</option>
+            <option value="History">History</option>
+            <option value="English">English</option>
+            <option value="Chinese">Chinese</option>
+            <option value="Malay">Malay</option>
+          </select>
+        </div>
+
+        <div class="dropdown-card">
+          <div class="dropdown-label">Select syllabus</div>
+          <select class="dropdown-select" id="syllabus-select">
+            <option value="">Choose syllabus...</option>
+            <option value="KSSR" data-grades="1,2,3,4,5,6">KSSR (Malaysian Primary)</option>
+            <option value="KSSM" data-grades="7,8,9,10,11">KSSM (Malaysian Secondary)</option>
+            <option value="IGCSE" data-grades="7,8,9,10,11">IGCSE</option>
+            <option value="Cambridge Primary" data-grades="1,2,3,4,5,6">Cambridge Primary</option>
+            <option value="IB PYP" data-grades="1,2,3,4,5,6">IB Primary Years Programme</option>
+            <option value="IB MYP" data-grades="7,8,9,10,11">IB Middle Years Programme</option>
+            <option value="A-Levels" data-grades="10,11">A-Levels</option>
+          </select>
+        </div>
+
+        <div class="dropdown-card">
+          <div class="dropdown-label">Select language</div>
+          <select class="dropdown-select" id="language-select">
+            <option value="">Choose language...</option>
+            <option value="English">English</option>
+            <option value="Bahasa Malaysia">Bahasa Malaysia</option>
+            <option value="Chinese (Mandarin)">Chinese (Mandarin)</option>
+            <option value="Tamil">Tamil</option>
+          </select>
+        </div>
+
+        <div class="dropdown-card">
+          <div class="dropdown-label">Unit/Chapter/Topic</div>
+          <input type="text" id="topic-input" class="dropdown-select" placeholder="Enter the topic or theme for your question..." style="height: auto; padding: 0.75rem;">
+        </div>
+
+        <div class="dropdown-card">
+          <div class="dropdown-label">Quiz Settings</div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #d97706; font-weight: 500;">
+              <input type="checkbox" id="shuffle-questions" style="margin-right: 0.5rem;">
+              Shuffle Questions
+            </label>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.25rem; color: #d97706; font-weight: 500;">Question Type:</label>
+            <select class="dropdown-select" id="question-type">
+              <option value="mix">Mix of Both</option>
+              <option value="multiple-choice">Multiple Choice Only</option>
+              <option value="written">Written Only</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; margin-bottom: 0.25rem; color: #d97706; font-weight: 500;">Number of Questions:</label>
+            <select class="dropdown-select" id="question-count">
+              <option value="5">5 Questions</option>
+              <option value="10">10 Questions</option>
+              <option value="15">15 Questions</option>
+              <option value="20">20 Questions</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="action-btn generate-btn">GENERATE QUIZ</button>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div id="questions-container">
+          <div class="question-section">
+            <h2 class="section-title">Questions:</h2>
+            <div class="content-area" id="questions-display">
+              <!-- Generated questions will appear here -->
+            </div>
+          </div>
+
+          <div class="answer-section">
+            <h2 class="section-title">Answers:</h2>
+            <div class="content-area" id="answers-display">
+              <!-- Generated answers will appear here -->
+            </div>
+          </div>
+        </div>
+
+        <div class="bottom-section">
+          <button class="action-btn save-btn" style="background-color: #10b981; margin-right: 1rem;">SAVE QUIZ</button>
+          <button class="quiz-mode-btn">GO TO QUIZ MODE</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    
+    // Use shared Firebase instances
+    let auth;
+    
+    // Wait for Firebase to be ready
+    window.firebaseReady.then(({ auth: firebaseAuth }) => {
+      auth = firebaseAuth;
+      
+      // Initialize page after Firebase is ready
+      initializePage();
+    });
+
+    const avatar = document.getElementById("profile-avatar");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const dropdown = document.getElementById("dropdownMenu");
+
+    // Sidebar navigation functions
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+
+    // Toggle dropdown on avatar click
+    avatar.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    // Initialize page when Firebase is ready
+    function initializePage() {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "login.html";
+        } else {
+        if (!user.displayName || user.displayName.trim() === "") {
+          window.location.href = "profile-setup.html";
+          return;
+        }
+
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+      }
+    });
+    }
+
+    // Handle logout
+    function doLogout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    document.getElementById("dropdown-logout").addEventListener("click", doLogout);
+    document.getElementById("nav-logout").addEventListener("click", doLogout);
+
+    // Question generation functionality
+    const generateBtn = document.querySelector('.generate-btn');
+    const questionsDisplay = document.getElementById('questions-display');
+    const answersDisplay = document.getElementById('answers-display');
+    const gradeSelect = document.getElementById('grade-select');
+    const subjectSelect = document.getElementById('subject-select');
+    const syllabusSelect = document.getElementById('syllabus-select');
+    const languageSelect = document.getElementById('language-select');
+    const topicInput = document.getElementById('topic-input');
+    const shuffleCheckbox = document.getElementById('shuffle-questions');
+    const questionTypeSelect = document.getElementById('question-type');
+    const questionCountSelect = document.getElementById('question-count');
+    const quizModeBtn = document.querySelector('.quiz-mode-btn');
+
+    let generatedQuizData = [];
+
+    // Function to filter syllabus options based on selected grade using data-grades attributes
+    function filterSyllabusOptions() {
+      const selectedGradeValue = gradeSelect.value;
+      // Handle Malaysian grade format: "Primary X" (grades 1-6) and "Form X" (grades 7-11)
+      let selectedGrade = null;
+      if (selectedGradeValue.startsWith('Primary ')) {
+        selectedGrade = parseInt(selectedGradeValue.replace('Primary ', ''));
+      } else if (selectedGradeValue.startsWith('Form ')) {
+        const formNumber = parseInt(selectedGradeValue.replace('Form ', ''));
+        selectedGrade = formNumber + 6; // Form 1 = Grade 7, Form 2 = Grade 8, etc.
+      }
+      const syllabusOptions = syllabusSelect.querySelectorAll('option');
+
+      // If no grade selected, hide all syllabus options except default
+      if (!selectedGradeValue) {
+        syllabusOptions.forEach(option => {
+          const isDefault = !option.value || option.textContent.includes('Choose syllabus');
+          option.style.display = isDefault ? 'block' : 'none';
+          option.disabled = !isDefault;
+          option.hidden = !isDefault;
+        });
+        syllabusSelect.value = '';
+        return;
+      }
+
+      console.log('Grade selector value:', selectedGradeValue);
+      console.log('Parsed grade number:', selectedGrade);
+
+      // Show/hide options based on grade selection using data-grades attributes
+      syllabusOptions.forEach(option => {
+        // Skip the default option
+        if (!option.value || option.textContent.includes('Choose syllabus')) {
+          option.style.display = 'block';
+          option.disabled = false;
+          option.hidden = false;
+          console.log('Keeping default option visible:', option.textContent);
+          return;
+        }
+
+        const grades = option.dataset.grades;
+        if (grades && selectedGrade && !isNaN(selectedGrade)) {
+          const gradeArray = grades.split(',').map(g => parseInt(g.trim()));
+          const isValidForGrade = gradeArray.includes(selectedGrade);
+          
+          console.log(`Option "${option.value}" (grades: ${grades}) - valid for grade ${selectedGrade}: ${isValidForGrade}`);
+          
+          if (isValidForGrade) {
+            option.style.display = 'block';
+            option.disabled = false;
+            option.hidden = false;
+          } else {
+            option.style.display = 'none';
+            option.disabled = true;
+            option.hidden = true;
+          }
+        } else {
+          // If no grades data or no selected grade, show all options
+          option.style.display = 'block';
+          option.disabled = false;
+          option.hidden = false;
+          console.log('No grade filtering applied, showing all options');
+        }
+      });
+
+      // Reset syllabus selection if current selection is not valid for new grade
+      const currentSyllabus = syllabusSelect.value;
+      const currentOption = syllabusSelect.querySelector(`option[value="${currentSyllabus}"]`);
+      if (currentOption && (currentOption.disabled || currentOption.hidden)) {
+        syllabusSelect.value = '';
+        console.log('Reset syllabus selection due to invalid choice');
+      }
+    }
+
+    // Add event listener to grade selector and call initially
+    if (gradeSelect) {
+      gradeSelect.addEventListener('change', filterSyllabusOptions);
+      console.log('Grade selector event listener added');
+      // Call initially to set up proper state
+      filterSyllabusOptions();
+    } else {
+      console.error('Grade selector not found!');
+    }
+
+    generateBtn.addEventListener('click', async () => {
+      const grade = gradeSelect.value;
+      const subject = subjectSelect.value;
+      const syllabus = syllabusSelect.value;
+      const language = languageSelect.value;
+      const topic = topicInput.value.trim();
+      const questionCount = parseInt(questionCountSelect.value);
+      const questionType = questionTypeSelect.value;
+
+      if (!grade || grade === 'Choose grade level...' || 
+          !subject || subject === 'Choose subject...' ||
+          !syllabus || syllabus === 'Choose syllabus...' ||
+          !language || language === 'Choose language...' ||
+          !topic) {
+        alert('Please fill in all fields before generating questions.');
+        return;
+      }
+
+      generateBtn.textContent = 'GENERATING...';
+      generateBtn.disabled = true;
+      questionsDisplay.innerHTML = '<p>Generating questions...</p>';
+      answersDisplay.innerHTML = '<p>Generating answers...</p>';
+
+      generatedQuizData = [];
+
+      try {
+        const questionTypes = questionType === 'mix' 
+          ? ['multiple-choice', 'written'] 
+          : [questionType === 'multiple-choice' ? 'multiple-choice' : 'written'];
+
+        // Array of different aspects and approaches to add variety
+        const questionVariations = [
+          'basic understanding and fundamentals',
+          'practical application and real-world examples', 
+          'problem-solving and analytical thinking',
+          'comparing and contrasting concepts',
+          'cause and effect relationships',
+          'step-by-step processes and procedures',
+          'critical thinking and evaluation',
+          'connecting to other related topics'
+        ];
+        
+        // Array of difficulty focuses for more variety
+        const difficultyApproaches = [
+          'introductory level',
+          'intermediate understanding', 
+          'application level',
+          'analysis and synthesis'
+        ];
+
+        for (let i = 0; i < questionCount; i++) {
+          const selectedType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+          
+          // Add variety by using different approaches for each question
+          const variation = questionVariations[i % questionVariations.length];
+          const difficultyFocus = difficultyApproaches[Math.floor(Math.random() * difficultyApproaches.length)];
+          const questionNumber = i + 1;
+
+          let prompt;
+          if (selectedType === 'multiple-choice') {
+            prompt = `Create a UNIQUE ${grade} ${subject} multiple choice question about "${topic}" following ${syllabus} syllabus. Generate in ${language}.
+
+CRITICAL: This is question ${questionNumber} of ${questionCount}. Make it DIFFERENT from any previous questions by focusing on ${variation} at ${difficultyFocus}.
+
+REQUIREMENTS:
+- Create ONE multiple choice question with 4 options (A, B, C, D)
+- Only ONE option should be correct  
+- Focus specifically on ${variation}
+- Ensure this question is UNIQUE and covers a different aspect than other questions
+- Include a brief explanation for the correct answer
+- Use plain text only, no markdown
+
+Format as JSON:
+{
+  "question": "question text",
+  "options": ["A option", "B option", "C option", "D option"],
+  "correctAnswer": "A",
+  "explanation": "brief explanation text",
+  "type": "multiple-choice"
+}`;
+          } else {
+            prompt = `Create a UNIQUE ${grade} ${subject} written question about "${topic}" following ${syllabus} syllabus. Generate in ${language}.
+
+CRITICAL: This is question ${questionNumber} of ${questionCount}. Make it DIFFERENT from any previous questions by focusing on ${variation} at ${difficultyFocus}.
+
+REQUIREMENTS:
+- Create ONE written question that requires a short answer
+- Focus specifically on ${variation}
+- Ensure this question is UNIQUE and covers a different aspect than other questions
+- Provide the expected answer
+- Include a brief explanation
+- Use plain text only, no markdown
+
+Format as JSON:
+{
+  "question": "question text",
+  "correctAnswer": "expected answer text",
+  "explanation": "brief explanation text",
+  "type": "written"
+}`;
+          }
+
+          // Try server-side API first, fall back to demo questions if not available
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            
+            const response = await fetch('/api/generate-question', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                prompt: prompt,
+                questionType: selectedType
+              }),
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+              const data = await response.json();
+              
+              // If server has valid API key and generated content
+              if (!data.demo && data.content) {
+                try {
+                  const parsed = JSON.parse(data.content);
+                  
+                  // Simple duplicate check - ensure question text is not too similar to existing ones
+                  const isDuplicate = generatedQuizData.some(existingQ => {
+                    const similarity = existingQ.question.toLowerCase().trim();
+                    const newQuestion = parsed.question.toLowerCase().trim();
+                    return similarity === newQuestion || 
+                           (similarity.length > 20 && newQuestion.includes(similarity.substring(0, 20))) ||
+                           (newQuestion.length > 20 && similarity.includes(newQuestion.substring(0, 20)));
+                  });
+                  
+                  if (!isDuplicate) {
+                    generatedQuizData.push(parsed);
+                    console.log(`✅ Generated unique question ${i + 1}: ${parsed.question.substring(0, 50)}...`);
+                    continue; // Success, move to next question
+                  } else {
+                    console.warn(`⚠️ Detected duplicate question ${i + 1}, using demo fallback`);
+                    // Fall through to demo question
+                  }
+                } catch (parseError) {
+                  console.error('Parse error for question', i + 1, parseError);
+                  // Fall through to demo question
+                }
+              } else {
+                console.log('Server using demo mode, creating local demo question');
+                // Fall through to demo question
+              }
+            } else {
+              console.warn('API request failed, falling back to demo question');
+              // Fall through to demo question
+            }
+          } catch (apiError) {
+            console.warn('API error, falling back to demo question:', apiError);
+            // Fall through to demo question
+          }
+
+          // Demo questions fallback
+          const demoQuestions = {
+            'multiple-choice': {
+              question: `${grade} ${subject} Question ${i + 1}: Which of the following best relates to ${topic}?`,
+              options: [
+                `Basic concept about ${topic}`,
+                `Intermediate concept about ${topic}`,
+                `Advanced concept about ${topic}`,
+                `Unrelated concept`
+              ],
+              correctAnswer: "A",
+              explanation: `This is a demo question about ${topic}. Please set up your DEEPSEEK_API_KEY for AI-generated questions.`,
+              type: "multiple-choice"
+            },
+            'written': {
+              question: `${grade} ${subject} Question ${i + 1}: Explain the main concept of ${topic}.`,
+              correctAnswer: `A comprehensive explanation of ${topic} concepts.`,
+              explanation: `This is a demo question about ${topic}. Please set up your DEEPSEEK_API_KEY for AI-generated questions.`,
+              type: "written"
+            }
+          };
+
+          generatedQuizData.push(demoQuestions[selectedType]);
+        }
+
+        displayGeneratedQuestions();
+
+      } catch (error) {
+        console.error('Error generating questions:', error);
+        questionsDisplay.innerHTML = 'Error generating questions. Please try again.';
+        answersDisplay.innerHTML = 'Error: ' + error.message;
+      } finally {
+        generateBtn.textContent = 'GENERATE QUIZ';
+        generateBtn.disabled = false;
+      }
+    });
+
+    function displayGeneratedQuestions() {
+      let questionsHTML = '';
+      let answersHTML = '';
+
+      generatedQuizData.forEach((item, index) => {
+        questionsHTML += `
+          <div style="margin-bottom: 1.5rem; padding: 1rem; border-left: 3px solid #ffd84d; background: #fffbeb;">
+            <strong>Question ${index + 1}:</strong><br>
+            ${item.question}
+            ${item.type === 'multiple-choice' ? `<br><br>
+              A. ${item.options[0]}<br>
+              B. ${item.options[1]}<br>
+              C. ${item.options[2]}<br>
+              D. ${item.options[3]}` : ''}
+          </div>
+        `;
+
+        answersHTML += `
+          <div style="margin-bottom: 1.5rem; padding: 1rem; border-left: 3px solid #10b981; background: #f0fdf4;">
+            <strong>Answer ${index + 1}:</strong><br>
+            ${item.type === 'multiple-choice' ? `Correct Answer: ${item.correctAnswer}` : `Expected Answer: ${item.correctAnswer}`}<br>
+            <em>Explanation: ${item.explanation}</em>
+          </div>
+        `;
+      });
+
+      questionsDisplay.innerHTML = questionsHTML;
+      answersDisplay.innerHTML = answersHTML;
+    }
+
+    // Save quiz functionality
+    const saveBtn = document.querySelector('.save-btn');
+    saveBtn.addEventListener('click', async () => {
+      if (!generatedQuizData || generatedQuizData.length === 0) {
+        alert('Please generate questions first before saving.');
+        return;
+      }
+
+      const quizName = prompt('Enter a name for this quiz:');
+      if (!quizName || quizName.trim() === '') {
+        alert('Quiz name is required to save.');
+        return;
+      }
+
+      const quizData = {
+        id: Date.now().toString(), // Simple ID generation
+        name: quizName.trim(),
+        className: 'Unnamed Class',
+        grade: gradeSelect.value,
+        subject: subjectSelect.value,
+        syllabus: syllabusSelect.value,
+        language: languageSelect.value,
+        topic: topicInput.value,
+        questions: generatedQuizData,
+        settings: {
+          shuffle: shuffleCheckbox.checked,
+          questionType: questionTypeSelect.value,
+          questionCount: questionCountSelect.value
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        // Try Firebase first if available
+        if (window.FirestoreDataManager && auth.currentUser) {
+          try {
+            const firestoreManager = new window.FirestoreDataManager();
+            await firestoreManager.saveQuiz(quizData);
+            console.log('Quiz saved successfully to Firebase:', quizData.name);
+            alert(`Quiz "${quizName}" saved successfully!`);
+          } catch (error) {
+            console.warn('Failed to save to Firebase, falling back to localStorage:', error);
+            throw error;
+          }
+        } else {
+          // Fallback to localStorage
+          const savedQuizzes = JSON.parse(localStorage.getItem('savedQuizzes') || '[]');
+          savedQuizzes.push(quizData);
+          localStorage.setItem('savedQuizzes', JSON.stringify(savedQuizzes));
+          console.log('Quiz saved successfully to localStorage:', quizData.name);
+          alert(`Quiz "${quizName}" saved successfully!`);
+        }
+      } catch (error) {
+        console.error('Error saving quiz:', error);
+        alert('Error saving quiz. Please try again.');
+      }
+    });
+
+    // Quiz mode navigation
+    quizModeBtn.addEventListener('click', async () => {
+      const grade = gradeSelect.value;
+      const subject = subjectSelect.value;
+      const syllabus = syllabusSelect.value;
+      const language = languageSelect.value;
+      const topic = topicInput.value.trim();
+      const shuffle = shuffleCheckbox.checked;
+      const questionType = questionTypeSelect.value;
+      const questionCount = questionCountSelect.value;
+
+      if (!grade || grade === 'Choose grade level...' || 
+          !subject || subject === 'Choose subject...' ||
+          !syllabus || syllabus === 'Choose syllabus...' ||
+          !language || language === 'Choose language...' ||
+          !topic) {
+        alert('Please fill in all fields before starting quiz mode.');
+        return;
+      }
+
+      // Check if questions are available for quiz mode
+      if (!generatedQuizData || generatedQuizData.length === 0) {
+        alert('Please generate questions first before starting quiz mode.');
+        return;
+      }
+
+      // Transfer questions directly to quiz mode (whether saved or not)
+      if (generatedQuizData && generatedQuizData.length > 0) {
+        sessionStorage.setItem('generatedQuestions', JSON.stringify({
+          questions: generatedQuizData,
+          settings: {
+            grade: grade,
+            subject: subject,
+            syllabus: syllabus,
+            language: language,
+            topic: topic,
+            shuffle: shuffle,
+            questionType: questionType,
+            questionCount: questionCount
+          }
+        }));
+
+        window.location.href = 'quiz-mode.html';
+      } else {
+        // No questions generated, use API generation
+        const params = new URLSearchParams({
+          grade: grade,
+          subject: subject,
+          syllabus: syllabus,
+          language: language,
+          topic: topic,
+          shuffle: shuffle.toString(),
+          questionType: questionType,
+          questionCount: questionCount
+        });
+
+        window.location.href = `quiz-mode.html?${params.toString()}`;
+      }
+    });
+  </script>
+</body>
+</html>

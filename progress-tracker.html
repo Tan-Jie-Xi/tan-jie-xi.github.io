@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Class Progress Tracker – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+      cursor: pointer;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Dropdown menu */
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #ffbd59;
+      min-width: 160px;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      z-index: 25;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dropdown strong {
+      display: block;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      background: #ffbd59;
+      color: #1f2937;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.875rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #ffde59;
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-section {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+
+    .nav-section h2 {
+      font-weight: 700;
+      color: #d98c0b;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      color: #d98c0b;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(217, 140, 11, 0.1);
+      color: #b8750a;
+    }
+
+    /* Overlay for sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #000000;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .tracker-container {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .controls-section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+
+    .filter-select {
+      padding: 0.5rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: white;
+      color: #374151;
+      min-width: 150px;
+    }
+
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    .chart-section {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 400px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      margin-bottom: 2rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      background: #f59e0b;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .action-btn:hover {
+      background: #d97706;
+    }
+
+    .class-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #f8fafc;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 1rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .controls-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .stats-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
+      .chart-container {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="Logo">
+        <img src="assets/quask.png" alt="Quask">
+      </div>
+      <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+
+    <div class="nav-section">
+      <h2>Dashboard</h2>
+      <div class="nav-links">
+        <a href="dashboard.html">Back to Dashboard</a>
+        <a href="question-generator.html">Question Generator</a>
+        <a href="quiz-library.html">Quiz Library</a>
+        <a href="progress-tracker.html">Class Progress Tracker</a>
+        <a href="name-selector.html">Random Name Selector</a>
+        <a href="fact-checker.html">AI Fact Checker</a>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h2>Account Settings</h2>
+      <div class="nav-links">
+        <a href="profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="nav-logout">Log Out</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div class="logo" onclick="window.location.href='dashboard.html'">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <!-- Dropdown menu -->
+      <div class="dropdown" id="dropdownMenu">
+        <strong>Settings</strong>
+        <a href="profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="dropdown-logout">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Class Progress Tracker</h1>
+
+    <div class="tracker-container">
+      <div class="controls-section">
+        <div class="filter-group">
+          <label for="class-filter">Filter by Class:</label>
+          <select id="class-filter" class="filter-select">
+            <option value="all">All Classes</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="time-filter">Time Period:</label>
+          <select id="time-filter" class="filter-select">
+            <option value="all">All Time</option>
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="quarter">Last 3 Months</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="subject-filter">Filter by Subject:</label>
+          <select id="subject-filter" class="filter-select">
+            <option value="all">All Subjects</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-cards" id="stats-cards">
+        <!-- Stats cards will be populated here -->
+      </div>
+
+      <div class="chart-section">
+        <div class="chart-header">
+          <h2 class="chart-title">Progress Over Time</h2>
+        </div>
+        <div class="chart-container">
+          <canvas id="progressChart"></canvas>
+        </div>
+        <div class="class-legend" id="class-legend">
+          <!-- Legend will be populated here -->
+        </div>
+      </div>
+
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <h3>No quiz results yet</h3>
+        <p>Take some quizzes to start tracking your progress!</p>
+        <a href="quiz-library.html" class="action-btn">Go to Quiz Library</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    let auth;
+    
+    window.firebaseReady.then(({ auth: firebaseAuth }) => {
+      auth = firebaseAuth;
+      
+      initializePage();
+    });
+
+    const avatar = document.getElementById("profile-avatar");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const dropdown = document.getElementById("dropdownMenu");
+    const classFilter = document.getElementById('class-filter');
+    const timeFilter = document.getElementById('time-filter');
+    const subjectFilter = document.getElementById('subject-filter');
+    const statsCards = document.getElementById('stats-cards');
+    const emptyState = document.getElementById('empty-state');
+    const classLegend = document.getElementById('class-legend');
+
+    let progressChart = null;
+    let allResults = [];
+    let filteredResults = [];
+
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+    avatar.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    window.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    const colorPalette = [
+      '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+      '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1',
+      '#14b8a6', '#f43f5e', '#8b5cf6', '#22c55e', '#eab308'
+    ];
+
+    async function loadQuizResults() {
+      try {
+        let firebaseResults = [];
+        let localResults = [];
+        
+        localResults = JSON.parse(localStorage.getItem('quizResultsHistory') || '[]');
+        console.log(`Found ${localResults.length} quiz results in localStorage`);
+        
+        if (window.FirebaseDataManager && auth.currentUser) {
+          try {
+            const firebaseManager = new window.FirebaseDataManager();
+            firebaseResults = await firebaseManager.getQuizResults(auth.currentUser.uid);
+            console.log(`Loaded ${firebaseResults.length} quiz results from Firebase`);
+          } catch (error) {
+            console.warn('Failed to load from Firebase:', error);
+          }
+        }
+        
+        allResults = firebaseResults.length > 0 ? firebaseResults : localResults;
+        
+        if (allResults.length === 0) {
+          showEmptyState();
+          return;
+        }
+
+        allResults.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+        
+        populateFilters();
+        applyFilters();
+        updateChart();
+        updateStats();
+        
+      } catch (error) {
+        console.error('Error loading quiz results:', error);
+        showEmptyState();
+      }
+    }
+
+    function showEmptyState() {
+      emptyState.style.display = 'block';
+      document.querySelector('.chart-section').style.display = 'none';
+      statsCards.style.display = 'none';
+    }
+
+    function hideEmptyState() {
+      emptyState.style.display = 'none';
+      document.querySelector('.chart-section').style.display = 'block';
+      statsCards.style.display = 'grid';
+    }
+
+    function populateFilters() {
+      const classes = [...new Set(allResults.map(r => r.className || 'Unnamed Class'))].sort();
+      const subjects = [...new Set(allResults.map(r => r.quizSettings?.subject || 'Unknown').filter(s => s !== 'Unknown'))].sort();
+
+      classFilter.innerHTML = '<option value="all">All Classes</option>';
+      classes.forEach(className => {
+        const option = document.createElement('option');
+        option.value = className;
+        option.textContent = className;
+        classFilter.appendChild(option);
+      });
+
+      subjectFilter.innerHTML = '<option value="all">All Subjects</option>';
+      subjects.forEach(subject => {
+        const option = document.createElement('option');
+        option.value = subject;
+        option.textContent = subject;
+        subjectFilter.appendChild(option);
+      });
+    }
+
+    function applyFilters() {
+      const selectedClass = classFilter.value;
+      const selectedTime = timeFilter.value;
+      const selectedSubject = subjectFilter.value;
+
+      filteredResults = allResults.filter(result => {
+
+        if (selectedClass !== 'all' && (result.className || 'Unnamed Class') !== selectedClass) {
+          return false;
+        }
+
+        if (selectedSubject !== 'all' && (result.quizSettings?.subject || '') !== selectedSubject) {
+          return false;
+        }
+
+        if (selectedTime !== 'all') {
+          const resultDate = new Date(result.timestamp);
+          const now = new Date();
+          const diffTime = now - resultDate;
+          
+          switch (selectedTime) {
+            case 'week':
+              if (diffTime > 7 * 24 * 60 * 60 * 1000) return false;
+              break;
+            case 'month':
+              if (diffTime > 30 * 24 * 60 * 60 * 1000) return false;
+              break;
+            case 'quarter':
+              if (diffTime > 90 * 24 * 60 * 60 * 1000) return false;
+              break;
+          }
+        }
+
+        return true;
+      });
+
+      if (filteredResults.length === 0) {
+        showEmptyState();
+      } else {
+        hideEmptyState();
+      }
+    }
+
+    function updateChart() {
+      if (filteredResults.length === 0) return;
+
+      const classesByName = {};
+      filteredResults.forEach(result => {
+        const className = result.className || 'Unnamed Class';
+        if (!classesByName[className]) {
+          classesByName[className] = [];
+        }
+        classesByName[className].push(result);
+      });
+
+      const datasets = Object.keys(classesByName).map((className, index) => {
+        const classResults = classesByName[className];
+        const data = classResults.map(result => ({
+          x: new Date(result.timestamp),
+          y: result.score.percentage
+        }));
+
+        return {
+          label: className,
+          data: data,
+          borderColor: colorPalette[index % colorPalette.length],
+          backgroundColor: colorPalette[index % colorPalette.length] + '20',
+          tension: 0.4,
+          fill: false,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointBackgroundColor: colorPalette[index % colorPalette.length],
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+        };
+      });
+
+      updateLegend(datasets);
+
+      const ctx = document.getElementById('progressChart').getContext('2d');
+      
+      if (progressChart) {
+        progressChart.destroy();
+      }
+
+      progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'nearest'
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#ffffff',
+              bodyColor: '#ffffff',
+              borderColor: '#ffffff',
+              borderWidth: 1,
+              cornerRadius: 8,
+              displayColors: true,
+              callbacks: {
+                title: function(context) {
+                  return new Date(context[0].parsed.x).toLocaleDateString();
+                },
+                label: function(context) {
+                  return `${context.dataset.label}: ${context.parsed.y}%`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              time: {
+                unit: 'day',
+                displayFormats: {
+                  day: 'MMM dd'
+                }
+              },
+              title: {
+                display: true,
+                text: 'Date',
+                color: '#6b7280',
+                font: {
+                  size: 12
+                }
+              },
+              grid: {
+                color: '#e5e7eb'
+              },
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 11
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Score (%)',
+                color: '#6b7280',
+                font: {
+                  size: 12
+                }
+              },
+              grid: {
+                color: '#e5e7eb'
+              },
+              ticks: {
+                color: '#6b7280',
+                font: {
+                  size: 11
+                },
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateLegend(datasets) {
+      classLegend.innerHTML = '';
+      datasets.forEach(dataset => {
+        const legendItem = document.createElement('div');
+        legendItem.className = 'legend-item';
+        legendItem.innerHTML = `
+          <div class="legend-color" style="background-color: ${dataset.borderColor}"></div>
+          <span>${dataset.label} (${dataset.data.length} quiz${dataset.data.length !== 1 ? 'es' : ''})</span>
+        `;
+        classLegend.appendChild(legendItem);
+      });
+    }
+
+    function updateStats() {
+      if (filteredResults.length === 0) return;
+
+      const totalQuizzes = filteredResults.length;
+      const totalClasses = new Set(filteredResults.map(r => r.className || 'Unnamed Class')).size;
+      const averageScore = Math.round(filteredResults.reduce((sum, r) => sum + r.score.percentage, 0) / totalQuizzes);
+      
+      const sortedResults = [...filteredResults].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const firstHalf = sortedResults.slice(0, Math.floor(sortedResults.length / 2));
+      const secondHalf = sortedResults.slice(Math.floor(sortedResults.length / 2));
+      
+      let improvement = 0;
+      if (firstHalf.length > 0 && secondHalf.length > 0) {
+        const firstHalfAvg = firstHalf.reduce((sum, r) => sum + r.score.percentage, 0) / firstHalf.length;
+        const secondHalfAvg = secondHalf.reduce((sum, r) => sum + r.score.percentage, 0) / secondHalf.length;
+        improvement = Math.round(secondHalfAvg - firstHalfAvg);
+      }
+
+      statsCards.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-value">${totalQuizzes}</div>
+          <div class="stat-label">Total Quizzes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalClasses}</div>
+          <div class="stat-label">Classes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${averageScore}%</div>
+          <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color: ${improvement >= 0 ? '#10b981' : '#ef4444'}">
+            ${improvement >= 0 ? '+' : ''}${improvement}%
+          </div>
+          <div class="stat-label">Improvement</div>
+        </div>
+      `;
+    }
+
+    classFilter.addEventListener('change', () => {
+      applyFilters();
+      updateChart();
+      updateStats();
+    });
+
+    timeFilter.addEventListener('change', () => {
+      applyFilters();
+      updateChart();
+      updateStats();
+    });
+
+    subjectFilter.addEventListener('change', () => {
+      applyFilters();
+      updateChart();
+      updateStats();
+    });
+    function doLogout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    document.getElementById("nav-logout").addEventListener("click", doLogout);
+    document.getElementById("dropdown-logout").addEventListener("click", doLogout);
+
+    function initializePage() {
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          window.location.href = "login.html";
+        } else {
+          if (user.photoURL) {
+            avatar.style.backgroundImage = `url(${user.photoURL})`;
+            avatarInitial.style.display = "none";
+          } else {
+            avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+          }
+          
+          loadQuizResults();
+        }
+      });
+    }
+  </script>
+</body>
+</html>

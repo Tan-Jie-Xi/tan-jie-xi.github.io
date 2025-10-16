@@ -1,0 +1,590 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* Borgir */
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Dropdown menu */
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50px;
+      background-color: #ffbd59;
+      border-radius: 8px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+      min-width: 180px;
+      overflow: hidden;
+      z-index: 25;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dropdown strong {
+      display: block;
+      padding: 12px 16px;
+      font-size: 0.875rem;
+      background: #ffbd59;
+      color: #1f2937;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .dropdown a {
+      display: block;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: #334155;
+      font-size: 0.875rem;
+      transition: background-color 0.2s ease;
+    }
+
+    .dropdown a:hover {
+      background-color: #f1f5f9;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 280px;
+      height: 100vh;
+      background: #ffde59;
+      z-index: 100;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-logo img {
+      /* Remove size constraints to use natural image size */
+    }
+
+    .sidebar-logo span {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .close-btn {
+      font-size: 24px;
+      cursor: pointer;
+      color: #1f2937;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .close-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-section {
+      margin: 20px 0;
+      padding: 0 20px;
+    }
+
+    .nav-section h2 {
+      font-weight: 700;
+      color: #d98c0b;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-links a {
+      padding: 12px 16px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      color: #d98c0b;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      background-color: rgba(217, 140, 11, 0.1);
+      color: #b8750a;
+    }
+
+    /* Overlay for sidebar */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 50;
+      display: none;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* Main Content Area */
+    .dashboard-main {
+      flex: 1;
+      padding: 2rem 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .dashboard-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Typography */
+    .dashboard-content h1 {
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
+      color: #000000;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* Search Container */
+    .search-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 3rem;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 12px 20px;
+      border: 2px solid #d1d5db;
+      border-radius: 25px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: #ffbd59;
+    }
+
+    .search-input::placeholder {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .search-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      margin-left: -40px;
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    /* Tools Grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .tool-card {
+      background-color: #ffbd59;
+      border-radius: 12px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      min-height: 160px;
+      justify-content: center;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .tool-icon {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+    }
+
+    .tool-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dashboard-header {
+        padding: 1rem 1.5rem;
+      }
+
+      .dashboard-main {
+        padding: 1.5rem 1rem;
+      }
+
+      .dashboard-content h1 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .search-container {
+        margin-bottom: 2rem;
+      }
+
+      .tools-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+      }
+
+      .tool-card {
+        padding: 1.5rem 1rem;
+        min-height: 140px;
+      }
+
+      .tool-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .tool-label {
+        font-size: 0.9rem;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="Logo">
+        <img src="assets/quask.png" alt="Quask">
+      </div>
+      <span class="close-btn" onclick="closeSidebar()">&times;</span>
+    </div>
+
+    <div class="nav-section">
+      <h2>Dashboard</h2>
+      <div class="nav-links">
+        <a href="question-generator.html">Question Generator</a>
+        <a href="quiz-library.html">Quiz Library</a>
+        <a href="progress-tracker.html">Class Progress Tracker</a>
+        <a href="name-selector.html">Random Name Selector</a>
+        <a href="fact-checker.html">AI Fact Checker</a>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <h2>Account Settings</h2>
+      <div class="nav-links">
+        <a href="../profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="nav-logout">Log Out</a>
+      </div>
+    </div>
+  </div></div>
+
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div class="logo">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+      <!-- Dropdown menu -->
+      <div class="dropdown" id="dropdownMenu">
+        <strong>Settings</strong>
+        <a href="../profilepicture.html">Profile Picture</a>
+        <a href="username.html">Username</a>
+        <a href="#" id="dropdown-logout">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-main">
+    <div class="dashboard-content">
+      <h1 id="greeting">Hello, {user}!</h1>
+
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search your quiz library..." class="search-input">
+        <button class="search-btn" id="search-btn">🔍</button>
+      </div>
+
+      <div class="tools-grid">
+        <div class="tool-card" onclick="window.location.href='question-generator.html'">
+          <img src="assets/q.png" alt="Question Generator" class="tool-icon">
+          <span class="tool-label">Question Generator</span>
+        </div>
+        <div class="tool-card" onclick="window.location.href='progress-tracker.html'">
+          <img src="assets/p.png" alt="Progress Tracker" class="tool-icon">
+          <span class="tool-label">Progress Tracker</span>
+        </div>
+        <div class="tool-card" onclick="window.location.href='fact-checker.html'">
+          <img src="assets/f.png" alt="AI Fact Checker" class="tool-icon">
+          <span class="tool-label">AI Fact Checker</span>
+        </div>
+        <div class="tool-card" onclick="window.location.href='name-selector.html'">
+          <img src="assets/s.png" alt="Name Selector" class="tool-icon">
+          <span class="tool-label">Name Selector</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+      authDomain: "quask-a9e1b.firebaseapp.com",
+      projectId: "quask-a9e1b",
+      storageBucket: "quask-a9e1b.firebasestorage.app",
+      messagingSenderId: "726397658400",
+      appId: "1:726397658400:web:cac926ec2cbffea890a345",
+      measurementId: "G-RT218LJWLP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const avatar = document.getElementById("profile-avatar");
+    const avatarInitial = document.getElementById("avatar-initial");
+    const dropdown = document.getElementById("dropdownMenu");
+
+    // Sidebar navigation functions
+    window.toggleSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+
+    window.closeSidebar = function() {
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("sidebar-overlay");
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+
+    // Toggle dropdown on avatar click
+    avatar.addEventListener("click", () => {
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    });
+
+    // Close dropdown if clicked outside
+    window.addEventListener("click", (e) => {
+      if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        if (!user.displayName || user.displayName.trim() === "") {
+          window.location.href = "profile-setup.html";
+          return;
+        }
+
+        document.getElementById("greeting").textContent = `Hello, ${user.displayName}!`;
+
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+      }
+    });
+
+    // Handle logout
+    function doLogout() {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    // Add event listeners only if elements exist
+    const logoutBtn = document.getElementById("logout-btn");
+    if (logoutBtn) logoutBtn.addEventListener("click", doLogout);
+
+    document.getElementById("dropdown-logout").addEventListener("click", doLogout);
+    document.getElementById("nav-logout").addEventListener("click", doLogout);
+
+    // Search functionality
+    const searchInput = document.getElementById("search-input");
+    const searchBtn = document.getElementById("search-btn");
+
+    function performSearch() {
+      const query = searchInput.value.trim();
+      if (query) {
+        // Redirect to quiz library with search query
+        window.location.href = `quiz-library.html?search=${encodeURIComponent(query)}`;
+      } else {
+        // If no query, just go to quiz library
+        window.location.href = 'quiz-library.html';
+      }
+    }
+
+    // Search on button click
+    searchBtn.addEventListener("click", performSearch);
+
+    // Search on Enter key press
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        performSearch();
+      }
+    });
+  </script>
+</body>
+</html>

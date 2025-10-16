@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Results – Quask</title>
+  <style>
+    /* Base Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: #334155;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2.5rem;
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      color: #64748b;
+      padding: 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .hamburger:hover {
+      background-color: #f1f5f9;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #d98c0b;
+      cursor: pointer;
+    }
+
+    .profile-section {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      font-size: 1rem;
+      color: #3730a3;
+      font-weight: 600;
+      border: 2px solid #c7d2fe;
+      cursor: pointer;
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #000000;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .class-name {
+      font-size: 1.2rem;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .results-container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .score-summary {
+      background: #ffd84d;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .score-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 1rem;
+    }
+
+    .score-display {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #d97706;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-percentage {
+      font-size: 1.2rem;
+      color: #374151;
+    }
+
+    .question-item {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid transparent;
+    }
+
+    .question-item.correct {
+      border-left-color: #10b981;
+    }
+
+    .question-item.incorrect {
+      border-left-color: #ef4444;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .question-number {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .question-status {
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+    }
+
+    .question-status.correct {
+      background: #d1fae5;
+      color: #059669;
+    }
+
+    .question-status.incorrect {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .answer-section {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .answer-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .answer-label {
+      font-weight: 600;
+      color: #6b7280;
+      min-width: 100px;
+      font-size: 0.9rem;
+    }
+
+    .answer-text {
+      flex: 1;
+      color: #374151;
+    }
+
+    .user-answer {
+      background: #f3f4f6;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .correct-answer {
+      background: #d1fae5;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    .explanation {
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 6px;
+      border-left: 3px solid #3b82f6;
+      font-style: italic;
+      color: #4b5563;
+    }
+
+    .encouragement {
+      background: linear-gradient(135deg, #ffd84d 0%, #ffde59 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .encouragement-text {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #d97706;
+      margin-bottom: 0.5rem;
+    }
+
+    .encouragement-subtitle {
+      font-size: 1rem;
+      color: #92400e;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .retry-btn {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .retry-btn:hover {
+      background: #2563eb;
+    }
+
+    .dashboard-btn {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .dashboard-btn:hover {
+      background: #d97706;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      background: #ffffff;
+      border-top: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+      .results-container {
+        padding: 1rem;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .action-btn {
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="header-left">
+      <span class="hamburger" onclick="goBack()">←</span>
+      <div class="logo" onclick="window.location.href='dashboard.html'">
+        Quask
+      </div>
+    </div>
+    <div class="profile-section">
+      <div class="profile-avatar" id="profile-avatar">
+        <span id="avatar-initial">?</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <h1 class="page-title">Quiz Results</h1>
+    <div class="class-name" id="class-name">Class Name</div>
+    
+    <div class="results-container">
+      <div class="score-summary">
+        <div class="score-title">Your Score</div>
+        <div class="score-display" id="score-display">0/0</div>
+        <div class="score-percentage" id="score-percentage">0%</div>
+      </div>
+
+      <div id="questions-list">
+        <!-- Questions will be populated here -->
+      </div>
+
+      <div class="encouragement" id="encouragement">
+        <div class="encouragement-text" id="encouragement-text">
+          Great job!
+        </div>
+        <div class="encouragement-subtitle" id="encouragement-subtitle">
+          Keep up the good work!
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn retry-btn" onclick="retryQuiz()">Try Again</button>
+        <button class="action-btn dashboard-btn" onclick="goToDashboard()">Back to Dashboard</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Quask. All rights reserved.</p>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDOZwIJjuyuux6Z9OQ9x6LBvu3CuxMWfuE",
+      authDomain: "quask-a9e1b.firebaseapp.com",
+      projectId: "quask-a9e1b",
+      storageBucket: "quask-a9e1b.firebasestorage.app",
+      messagingSenderId: "726397658400",
+      appId: "1:726397658400:web:cac926ec2cbffea890a345",
+      measurementId: "G-RT218LJWLP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Encouragement messages
+    const encouragementMessages = {
+      excellent: [
+        { text: "Outstanding work!", subtitle: "You're a quiz champion!" },
+        { text: "Perfect score!", subtitle: "You've mastered this topic!" },
+        { text: "Incredible job!", subtitle: "You're on fire!" }
+      ],
+      good: [
+        { text: "Great job!", subtitle: "You're doing really well!" },
+        { text: "Well done!", subtitle: "Keep up the good work!" },
+        { text: "Nice work!", subtitle: "You're making great progress!" }
+      ],
+      average: [
+        { text: "Good effort!", subtitle: "You're on the right track!" },
+        { text: "Keep going!", subtitle: "Practice makes perfect!" },
+        { text: "Nice try!", subtitle: "You're learning and improving!" }
+      ],
+      needsImprovement: [
+        { text: "Don't give up!", subtitle: "Every expert was once a beginner!" },
+        { text: "Keep trying!", subtitle: "You'll get better with practice!" },
+        { text: "Stay positive!", subtitle: "Learning is a journey, not a destination!" }
+      ],
+      failed: [
+        { text: "Don't lose hope!", subtitle: "Mistakes help us learn and grow!" },
+        { text: "Try again!", subtitle: "You're closer to success than you think!" },
+        { text: "Keep learning!", subtitle: "Every failure is a step towards success!" }
+      ]
+    };
+
+    // Get results from sessionStorage
+    function getResults() {
+      try {
+        const storedData = sessionStorage.getItem('quizResults');
+        if (storedData) {
+          const data = JSON.parse(storedData);
+          return { results: data.results || [], className: data.className || 'Unnamed Class' };
+        }
+      } catch (error) {
+        console.error('Error getting results:', error);
+      }
+      
+      return { results: [], className: 'Unnamed Class' };
+    }
+
+    // Display results
+    function displayResults() {
+      const { results, className } = getResults();
+      
+      if (results.length === 0) {
+        document.querySelector('.main-content').innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      // Set class name
+      document.getElementById('class-name').textContent = className;
+
+      // Calculate score
+      const correctAnswers = results.filter(r => r.isCorrect).length;
+      const totalQuestions = results.length;
+      const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+      // Display score
+      document.getElementById('score-display').textContent = `${correctAnswers}/${totalQuestions}`;
+      document.getElementById('score-percentage').textContent = `${percentage}%`;
+
+      // Display questions
+      const questionsList = document.getElementById('questions-list');
+      questionsList.innerHTML = '';
+
+      results.forEach((result, index) => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = `question-item ${result.isCorrect ? 'correct' : 'incorrect'}`;
+        
+        let answerSection = '';
+        if (result.type === 'multiple-choice') {
+          answerSection = `
+            <div class="answer-section">
+              <div class="answer-row">
+                <span class="answer-label">Your Answer:</span>
+                <span class="answer-text user-answer">${result.userAnswer}</span>
+              </div>
+              <div class="answer-row">
+                <span class="answer-label">Correct Answer:</span>
+                <span class="answer-text correct-answer">${result.correctAnswer}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          answerSection = `
+            <div class="answer-section">
+              <div class="answer-row">
+                <span class="answer-label">Your Answer:</span>
+                <span class="answer-text user-answer">${result.userAnswer}</span>
+              </div>
+              <div class="answer-row">
+                <span class="answer-label">Expected Answer:</span>
+                <span class="answer-text correct-answer">${result.correctAnswer}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        questionDiv.innerHTML = `
+          <div class="question-header">
+            <span class="question-number">Question ${index + 1}</span>
+            <span class="question-status ${result.isCorrect ? 'correct' : 'incorrect'}">
+              ${result.isCorrect ? 'Correct' : 'Incorrect'}
+            </span>
+          </div>
+          <div class="question-text">${result.question}</div>
+          ${answerSection}
+          <div class="explanation">${result.explanation}</div>
+        `;
+        
+        questionsList.appendChild(questionDiv);
+      });
+
+      // Display encouragement message
+      displayEncouragement(percentage);
+    }
+
+    // Display encouragement message based on score
+    function displayEncouragement(percentage) {
+      let category;
+      if (percentage >= 90) category = 'excellent';
+      else if (percentage >= 80) category = 'good';
+      else if (percentage >= 60) category = 'average';
+      else if (percentage >= 40) category = 'needsImprovement';
+      else category = 'failed';
+
+      const messages = encouragementMessages[category];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
+      document.getElementById('encouragement-text').textContent = randomMessage.text;
+      document.getElementById('encouragement-subtitle').textContent = randomMessage.subtitle;
+    }
+
+    // Navigation functions
+    window.goBack = function() {
+      window.location.href = 'quiz-mode.html';
+    };
+
+    window.retryQuiz = function() {
+      window.location.href = 'question-generator.html';
+    };
+
+    window.goToDashboard = function() {
+      window.location.href = 'dashboard.html';
+    };
+
+    // Authentication check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      } else {
+        const avatar = document.getElementById("profile-avatar");
+        const avatarInitial = document.getElementById("avatar-initial");
+        
+        if (user.photoURL) {
+          avatar.style.backgroundImage = `url(${user.photoURL})`;
+          avatarInitial.style.display = "none";
+        } else {
+          avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+        }
+      }
+    });
+
+    // Initialize results display
+    displayResults();
+
+    // Clear session storage after displaying results
+    setTimeout(() => {
+      sessionStorage.removeItem('quizResults');
+    }, 1000);
+  </script>
+</body>
+</html>
