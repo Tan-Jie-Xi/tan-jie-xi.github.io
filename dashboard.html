@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard – Quask</title>
   <style>
-    /* Base Reset */
+    /* Testing p1 *
     * {
       margin: 0;
       padding: 0;
@@ -22,7 +22,7 @@
       flex-direction: column;
     }
 
-    /* Header Styles */
+    /* header for ref */
     .dashboard-header {
       display: flex;
       justify-content: space-between;
@@ -41,7 +41,7 @@
       gap: 15px;
     }
 
-    /* Borgir */
+    /* borgir :3*/
     .hamburger {
       font-size: 24px;
       cursor: pointer;
@@ -83,7 +83,7 @@
       background-position: center;
     }
 
-    /* Dropdown menu */
+    /* dropdown part */
     .dropdown {
       display: none;
       position: absolute;
@@ -120,7 +120,7 @@
       background-color: #f1f5f9;
     }
 
-    /* Sidebar Navigation */
+    /* sidebar nav*/
     .sidebar {
       position: fixed;
       top: 0;
@@ -153,7 +153,7 @@
     }
 
     .sidebar-logo img {
-      /* Remove size constraints to use natural image size */
+      /* remember to remove size 2/7/2025 */
     }
 
     .sidebar-logo span {
@@ -210,7 +210,7 @@
       color: #b8750a;
     }
 
-    /* Overlay for sidebar */
+    /* sidebar overlay */
     .sidebar-overlay {
       position: fixed;
       top: 0;
@@ -226,7 +226,7 @@
       display: block;
     }
 
-    /* Main Content Area */
+    /* main cnt */
     .dashboard-main {
       flex: 1;
       padding: 2rem 1.5rem;
@@ -244,7 +244,7 @@
       text-align: center;
     }
 
-    /* Typography */
+    /* font stuff */
     .dashboard-content h1 {
       font-size: 2.5rem;
       margin-bottom: 2rem;
@@ -253,7 +253,7 @@
       text-align: center;
     }
 
-    /* Search Container */
+    /* search bar */
     .search-container {
       display: flex;
       align-items: center;
@@ -292,7 +292,7 @@
       padding: 8px;
     }
 
-    /* Tools Grid */
+    /* tools ?? 29/10/2026 */
     .tools-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -336,7 +336,7 @@
       line-height: 1.2;
     }
 
-    /* Footer */
+    /* footer */
     footer {
       text-align: center;
       padding: 1.5rem;
@@ -346,7 +346,7 @@
       font-size: 0.875rem;
     }
 
-    /* Responsive */
+    /* please work (response) */
     @media (max-width: 768px) {
       .dashboard-header {
         padding: 1rem 1.5rem;
@@ -392,7 +392,7 @@
   </style>
 </head>
 <body>
-  <!-- Sidebar Navigation -->
+  <!-- sidebar html -->
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -435,7 +435,7 @@
       <div class="profile-avatar" id="profile-avatar">
         <span id="avatar-initial">?</span>
       </div>
-      <!-- Dropdown menu -->
+      <!-- dropdown html -->
       <div class="dropdown" id="dropdownMenu">
         <strong>Settings</strong>
         <a href="../profilepicture.html">Profile Picture</a>
@@ -500,7 +500,7 @@
     const avatarInitial = document.getElementById("avatar-initial");
     const dropdown = document.getElementById("dropdownMenu");
 
-    // Sidebar navigation functions
+    // sidebar functions
     window.toggleSidebar = function() {
       const sidebar = document.getElementById("sidebar");
       const overlay = document.getElementById("sidebar-overlay");
@@ -515,12 +515,12 @@
       overlay.classList.remove("show");
     }
 
-    // Toggle dropdown on avatar click
+    // avatar click dropdown thingy
     avatar.addEventListener("click", () => {
       dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     });
 
-    // Close dropdown if clicked outside
+    // close if clicked out
     window.addEventListener("click", (e) => {
       if (!avatar.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.style.display = "none";
@@ -547,39 +547,39 @@
       }
     });
 
-    // Handle logout
+    // logout hnadler
     function doLogout() {
       signOut(auth).then(() => {
         window.location.href = "login.html";
       });
     }
 
-    // Add event listeners only if elements exist
+    // listener stuff jic
     const logoutBtn = document.getElementById("logout-btn");
     if (logoutBtn) logoutBtn.addEventListener("click", doLogout);
 
     document.getElementById("dropdown-logout").addEventListener("click", doLogout);
     document.getElementById("nav-logout").addEventListener("click", doLogout);
 
-    // Search functionality
+    // YIXUAN PLEASE HELP FIX THIS THANK YOU
     const searchInput = document.getElementById("search-input");
     const searchBtn = document.getElementById("search-btn");
 
     function performSearch() {
       const query = searchInput.value.trim();
       if (query) {
-        // Redirect to quiz library with search query
+        // redirect search
         window.location.href = `quiz-library.html?search=${encodeURIComponent(query)}`;
       } else {
-        // If no query, just go to quiz library
+        // if no query
         window.location.href = 'quiz-library.html';
       }
     }
 
-    // Search on button click
+    // search
     searchBtn.addEventListener("click", performSearch);
 
-    // Search on Enter key press
+    // enter keypress
     searchInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
         performSearch();
